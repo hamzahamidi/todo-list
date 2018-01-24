@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content padding>
-  <ion-list *ngFor="let todoList of todoLists">
+  <ion-list *ngFor="let todoList of (todoLists$ | async)">
     <h4>{{todoList.name}}</h4>
     <ion-item  *ngFor="let item of todoList.items">
       <p><b>Nom:</b> {{item.name}}</p>
