@@ -17,11 +17,15 @@ export class HomePage {
   }
 
   ngOnInit() {
-    this.todoLists$ = this._TodoListProvider.getTodoList();
+    this.getList();
   }
 
   goToDetails(todoLists) {
     this.navCtrl.push('DetailsPage', { details: todoLists });
+  }
+
+  getList() {
+    this.todoLists$ = this._TodoListProvider.getTodoList();
   }
 
   addList() {
@@ -41,14 +45,14 @@ export class HomePage {
       buttons: [
         {
           text: 'Cancel',
-          handler: data => {}
+          handler: data => { }
         },
         {
           text: 'Save',
           handler: data => this._TodoListProvider
-                               .addList(data)
-                               .then(_ => this.presentToast('List succesfuly added'))
-                               //.catch(err => _ => this.presentToast('Something wrong happened'))
+            .addList(data)
+            .then(_ => this.presentToast('List succesfuly added'))
+          //.catch(err => _ => this.presentToast('Something wrong happened'))
 
         }
       ]
@@ -63,14 +67,14 @@ export class HomePage {
       buttons: [
         {
           text: 'Cancel',
-          handler: data => {}
+          handler: data => { }
         },
         {
           text: 'Yes',
           handler: _ => this._TodoListProvider
-                            .deleteList(todoList)
-                            .then(_ => this.presentToast('List succesfuly deleted'))
-                            .catch(err => _ => this.presentToast('Something wrong happened'))
+            .deleteList(todoList)
+            .then(_ => this.presentToast('List succesfuly deleted'))
+            .catch(err => _ => this.presentToast('Something wrong happened'))
         }
       ]
     });
@@ -90,14 +94,14 @@ export class HomePage {
       buttons: [
         {
           text: 'Cancel',
-          handler: data => {}
+          handler: data => { }
         },
         {
           text: 'Save',
           handler: data => this._TodoListProvider
-                               .updateList(todoList,data.name)
-                               .then(_ => this.presentToast('List name succesfuly updated'))
-                               .catch(err => _ => this.presentToast('Something wrong happened'))
+            .updateList(todoList, data.name)
+            .then(_ => this.presentToast('List name succesfuly updated'))
+            .catch(err => _ => this.presentToast('Something wrong happened'))
 
         }
       ]
@@ -115,7 +119,10 @@ export class HomePage {
   }
 
   refresh(event) {
-
+    this.getList();
+    setTimeout(() => {
+      event.complete();
+    }, 2000);
   }
 
 }
