@@ -1,5 +1,5 @@
 {
-  "name": "m2gi-ionic",
+  "name": "todo-list",
   "version": "0.0.1",
   "author": "Hamza Hamidi",
   "homepage": "http://ionicframework.com/",
@@ -36,7 +36,7 @@
     "@ionic/app-scripts": "3.1.6",
     "typescript": "2.4.2"
   },
-  "description": "An Ionic project",
+  "description": "TodoList using Ionic & Firebase",
   "config": {
     "ionic_copy": "./config/copy.config.js"
   }

@@ -1,0 +1,45 @@
+<!--
+  Generated template for the DetailsPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color='primary'>
+    <ion-title>{{todoList.name}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-card *ngFor="let item of todoList.items">
+    <ion-card-content>
+      <ion-card-title>
+        {{item.name}}
+      </ion-card-title>
+      <p> {{item.description}}</p>
+        <p> Status: {{item.state}}</p>
+    </ion-card-content>
+    <ion-row>
+        <ion-col align-self-center text-center>
+          <button ion-button clear small icon-start color="danger">
+            <ion-icon name="trash"></ion-icon>
+            <div>Delete</div>
+          </button>
+        </ion-col>
+        <ion-col align-self-center text-center>
+          <button ion-button clear small icon-start color="warning">
+            <ion-icon name="create"></ion-icon>
+            <div>Edit</div>
+          </button>
+        </ion-col>
+        <ion-col align-self-center text-center>
+          <ion-note>
+            11h ago
+          </ion-note>
+        </ion-col>
+      </ion-row>    
+  </ion-card>
+</ion-content>

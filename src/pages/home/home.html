@@ -1,16 +1,43 @@
 <ion-header>
-  <ion-navbar>
+  <ion-navbar color='primary'>
     <ion-title>Todo-List</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  <ion-list *ngFor="let todoList of (todoLists$ | async)">
-    <h4>{{todoList.name}}</h4>
-    <ion-item  *ngFor="let item of todoList.items">
-      <p><b>Nom:</b> {{item.name}}</p>
-      <p><b>Etat:</b> {{item.state}}</p>
-      <p><b>Description</b> {{item.description}}</p>
-    </ion-item>
-  </ion-list>
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  <ion-card *ngFor="let todoList of (todoLists$ | async)">
+    <ion-card-content (click)="goToDetails(todoList)">
+      <ion-card-title>
+        {{todoList.name}}
+      </ion-card-title>
+      <ion-list *ngFor="let item of todoList.items">
+        <ion-item>
+          <ion-label [ngClass]="{'strike':item.state}"> {{item.name}} </ion-label>
+          <ion-checkbox disabled [(ngModel)]="item.state"></ion-checkbox>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+    <ion-row>
+      <ion-col text-center>
+        <button ion-button clear small icon-start color="danger" (click)="deleteList(todoList)">
+          <ion-icon name="trash"></ion-icon>
+          <div>Delete</div>
+        </button>
+      </ion-col>
+      <ion-col text-center>
+        <button ion-button clear small icon-start color="warning" (click)="updateList(todoList)">
+          <ion-icon name="create"></ion-icon>
+          <div>Edit</div>
+        </button>
+      </ion-col>
+    </ion-row>
+  </ion-card>
+  <ion-fab right bottom>
+    <button color="secondary" ion-fab (click)="addList()">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>
