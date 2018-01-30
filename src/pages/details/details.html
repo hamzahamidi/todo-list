@@ -14,15 +14,19 @@
 
 
 <ion-content padding>
-  <ion-card *ngFor="let item of todoList.items">
-    <ion-card-content>
-      <ion-card-title>
-        {{item.name}}
-      </ion-card-title>
-      <p> {{item.description}}</p>
+  <h1 *ngIf="!todoList.items" ion-text color="gray" text-center>
+    <i> OOPS NO TASKS YET!!</i>
+  </h1>
+  <div *ngIf="!!todoList.items">
+    <ion-card *ngFor="let item of (todoList.items | value)">
+      <ion-card-content>
+        <ion-card-title>
+          {{item.name}}
+        </ion-card-title>
+        <p> {{item.description}}</p>
         <p> Status: {{item.state}}</p>
-    </ion-card-content>
-    <ion-row>
+      </ion-card-content>
+      <ion-row>
         <ion-col align-self-center text-center>
           <button ion-button clear small icon-start color="danger">
             <ion-icon name="trash"></ion-icon>
@@ -40,6 +44,12 @@
             11h ago
           </ion-note>
         </ion-col>
-      </ion-row>    
-  </ion-card>
+      </ion-row>
+    </ion-card>
+  </div>
+  <ion-fab right bottom>
+    <button color="secondary" ion-fab (click)="addItem()">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>

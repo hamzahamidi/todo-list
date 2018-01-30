@@ -31,15 +31,11 @@ export class HomePage {
   addList() {
     let prompt = this.alertCtrl.create({
       title: 'List Name',
-      message: "Enter a name for this new list & your first task",
+      message: "Enter a name for this new list",
       inputs: [
         {
           name: 'name',
           placeholder: 'Title'
-        },
-        {
-          name: 'task',
-          placeholder: 'Task'
         }
       ],
       buttons: [

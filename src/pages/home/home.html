@@ -13,7 +13,7 @@
       <ion-card-title>
         {{todoList.name}}
       </ion-card-title>
-      <ion-list *ngFor="let item of todoList.items">
+      <ion-list *ngFor="let item of (todoList.items | value)">
         <ion-item>
           <ion-label [ngClass]="{'strike':item.state}"> {{item.name}} </ion-label>
           <ion-checkbox disabled [(ngModel)]="item.state"></ion-checkbox>
