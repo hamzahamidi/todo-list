@@ -48,7 +48,7 @@ export class HomePage {
           handler: data => this._TodoListProvider
             .addList(data)
             .then(_ => this.presentToast('List succesfuly added'))
-          //.catch(err => _ => this.presentToast('Something wrong happened'))
+            .catch(err => _ => this.presentToast('Something wrong happened'))
 
         }
       ]

@@ -26,7 +26,21 @@ export class AuthPage {
   }
 
   signInGoogle($event) {
-    this._AuthProvider.googleLogin()
+    this._AuthProvider.loginUser()
+      .then((res: any) => {
+        this.navCtrl.setRoot('HomePage');
+        console.log('its working');
+        
+        // Google Access Token. 
+        //this.token = res.credential.accessToken;
+        //console.log('token:', this.token);
+        // The signed-in user info.
+        //this.user = res.user;
+        //console.log('user:', this.user);
+      })
+      .catch(err => console.log('error:', err))
+
+    /*.googleLogin()
       .then((res: any) => {
         this.navCtrl.setRoot('HomePage');
         // Google Access Token. 
@@ -36,12 +50,12 @@ export class AuthPage {
         this.user = res.user;
         //console.log('user:', this.user);
       })
-      .catch(err => console.log('error:', err))
+      .catch(err => console.log('error:', err))*/
   }
 
-  signIn(){
+  signIn() {
     console.log('comming soon!');
-    
+
   }
 
 }

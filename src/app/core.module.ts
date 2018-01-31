@@ -6,6 +6,7 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFirestoreModule } from 'angularfire2/firestore';
 
 // Providers
+import { GooglePlus } from '@ionic-native/google-plus';
 import { AuthProvider } from '../providers/auth.service';
 import { TodoListProvider } from '../providers/todo-list.service';
 
@@ -16,6 +17,6 @@ import { TodoListProvider } from '../providers/todo-list.service';
     AngularFireDatabaseModule,
     AngularFirestoreModule
   ],
-  providers: [AuthProvider,TodoListProvider]
+  providers: [GooglePlus, AuthProvider, TodoListProvider]
 })
 export class CoreModule { }

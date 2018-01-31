@@ -5,10 +5,12 @@ import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firesto
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 import { User } from '../models/user';
+import { GooglePlus } from '@ionic-native/google-plus';
+
 @Injectable()
 export class AuthProvider {
   user: Observable<User>;
-  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore) {
+  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore, private googlePlus: GooglePlus) {
     //// Get auth data, then get firestore user document || null
     /*this.user = this.afAuth.authState
       .switchMap(user => {
@@ -23,13 +25,13 @@ export class AuthProvider {
     const provider = new firebase.auth.GoogleAuthProvider()
     return this.oAuthLogin(provider);
   }
-  private oAuthLogin(provider):Promise<void> {
+  private oAuthLogin(provider): Promise<void> {
     return this.afAuth.auth.signInWithPopup(provider)
       .then((credential) => {
         this.updateUserData(credential.user);
       })
   }
-  private updateUserData(user):Promise<void> {
+  private updateUserData(user): Promise<void> {
     // Sets user data to firestore on login
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
     const data: User = {
@@ -42,5 +44,11 @@ export class AuthProvider {
   }
   signOut() {
     return this.afAuth.auth.signOut();
+  }
+  loginUser(): Promise<void> {
+    return this.googlePlus.login({
+      'webClientId': '588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com',
+      'offline': true
+    });
   }
 }

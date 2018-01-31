@@ -1,6 +1,6 @@
 {
-  "name": "m2gi",
-  "app_id": "",
+  "name": "todo-list",
+  "app_id": "todolist",
   "type": "ionic-angular",
   "integrations": {
     "cordova": {}
