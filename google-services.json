@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "588101161325",
+    "firebase_url": "https://m2gi-ionic-21b7b.firebaseio.com",
+    "project_id": "m2gi-ionic-21b7b",
+    "storage_bucket": "m2gi-ionic-21b7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588101161325:android:800ba080a887b6db",
+        "android_client_info": {
+          "package_name": "com.todo.list"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588101161325-u6rc9vk39eri0ocomaqg4ha72kbfn1l0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.todo.list",
+            "certificate_hash": "068ded83420be39b03ef9595e64c68526c08c7e3"
+          }
+        },
+        {
+          "client_id": "588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3wlc2TDbz7AaZXwEM2wrXFNSVetP_sZs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
