@@ -9,9 +9,11 @@ import { MyApp } from './app.component';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+// Import modules
+import { CoreModule} from './core.module';
+
 // Import the AngularFire2 Module
 import { AngularFireModule } from 'angularfire2';
-import { AngularFireDatabaseModule } from 'angularfire2/database';
 
 // Export AngularFire2 settings
 export const firebaseConfig = {
@@ -31,7 +33,7 @@ export const firebaseConfig = {
     HttpModule,
     IonicModule.forRoot(MyApp),
     AngularFireModule.initializeApp(firebaseConfig),
-    AngularFireDatabaseModule
+    CoreModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [MyApp],

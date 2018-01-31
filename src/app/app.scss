@@ -17,9 +17,14 @@
 }
 
 .item-checkbox-disabled ion-label {
-    opacity: 0.8 !important;
+  opacity: 0.8 !important;
 }
 
-.text-center{
-    text-align: center;
+.text-center {
+  text-align: center;
+}
+
+.center-vertically {
+  padding-top: 25%;
+  padding-bottom: 25%;
 }
