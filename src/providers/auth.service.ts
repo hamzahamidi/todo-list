@@ -10,17 +10,11 @@ import { GooglePlus } from '@ionic-native/google-plus';
 @Injectable()
 export class AuthProvider {
   user: Observable<User>;
-  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore, private googlePlus: GooglePlus) {
-    //// Get auth data, then get firestore user document || null
-    /*this.user = this.afAuth.authState
-      .switchMap(user => {
-        if (user) {
-          return this.afs.doc<User>(`users/${user.uid}`).valueChanges()
-        } else {
-          return Observable.of(null)
-        }
-      })*/
-  }
+  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore, private googlePlus: GooglePlus) { }
+  /**
+   * JS method 
+   * No longer used in this application
+   */
   googleLogin(): Promise<void> {
     const provider = new firebase.auth.GoogleAuthProvider()
     return this.oAuthLogin(provider);
@@ -45,6 +39,10 @@ export class AuthProvider {
   signOut() {
     return this.afAuth.auth.signOut();
   }
+
+  /**
+   * native method GooglePlus
+   */
   loginUser(): Promise<void> {
     return this.googlePlus.login({
       'webClientId': '588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com',
