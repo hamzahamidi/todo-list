@@ -7,26 +7,34 @@
 <ion-header>
 
   <ion-navbar color='primary'>
-    <ion-title>ItemDetails</ion-title>
+    <ion-title>Task Details</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
-  <form (ngSubmit)="submit()">
+  <form (ngSubmit)="submit()" style="overflow: hidden;">
     <ion-item>
-      <ion-label>Todo</ion-label>
+      <ion-label floating>Task Name</ion-label>
       <ion-input type="text" [(ngModel)]="_item.name" name="title"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Description</ion-label>
+      <ion-label floating>Description</ion-label>
       <ion-textarea [(ngModel)]="_item.description" name="description"></ion-textarea>
     </ion-item>
-    <ion-item>
-      <ion-label>State</ion-label>
-      <ion-checkbox [(ngModel)]="_item.state" name="state" ></ion-checkbox>
+    <ion-item padding>
+      <ion-label>Finished</ion-label>
+      <ion-checkbox [(ngModel)]="_item.state" name="state"></ion-checkbox>
     </ion-item>
-    <button ion-button type="submit" block>Add Task</button>
   </form>
+  <ion-row>
+    <ion-col>
+      <button ion-button color="danger" (click)="leave(true)" block>cancel</button>
+    </ion-col>
+    <ion-col>
+      <button *ngIf="_AddOrEdit" ion-button (click)="addItem()" block>Add Task</button>
+      <button *ngIf="!_AddOrEdit" ion-button color="warning" (click)="updateItem()" block>Update Task</button>
+    </ion-col>
+  </ion-row>
 </ion-content>

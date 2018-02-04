@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Item, TodoList } from '../models/todo-list';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 /*
   Generated class for the TodoListProvider provider.
 
@@ -13,20 +13,20 @@ import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 @Injectable()
 export class TodoListProvider {
   todoLists: AngularFireList<TodoList>;
-  _todoLists;
 
   constructor(public http: HttpClient, public db: AngularFireDatabase) { }
 
+  // Lists
   getTodoList(): Observable<TodoList[]> {
     this.todoLists = this.db.list('/todo-lists/');
     return this.todoLists.valueChanges();
   }
 
-  addList(data): Promise<void> {
+  addList(rawTodoList): Promise<void> {
     const todoListRef$ = this.todoLists.push(<TodoList>{});
     const todoList: TodoList = {
       id: todoListRef$.key,
-      name: data.name,
+      name: rawTodoList.name,
       items: new Set()
     };
     // FB creates ID automatically. We just retreive the ID.
@@ -39,16 +39,33 @@ export class TodoListProvider {
 
 
   updateList(todoList: TodoList, name: string): Promise<void> {
-    let _todoList: TodoList = todoList;
-    _todoList.name = name;
-    return this.todoLists.set(todoList.id, _todoList)
+    todoList.name = name;
+    return this.todoLists.set(todoList.id, todoList);
   }
 
-  addItem(list: TodoList, item: Item): Promise<void> {
-    const path = `/todo-lists/${list.id}/items/`;
-    console.log('path:', path);
-    const items: AngularFireList<Item> = this.db.list(path);
-    const itemRef$ = items.push(<Item>{});
+  getOneList(listId: string): Observable<TodoList> {
+    const list: AngularFireObject<TodoList> = this.db.object(`/todo-lists/${listId}/`);
+    return list.valueChanges();
+  }
+
+  // items
+
+  addItem(todoList: TodoList, item: Item): Promise<void> {
+    const itemRef$ = this.buildAngularFireListOfItems(todoList).push(<Item>{});
+    item.id = itemRef$.key;
     return itemRef$.set(item);
   }
+
+  deleteItem(todoList: TodoList, item: Item): Promise<void> {
+    return this.buildAngularFireListOfItems(todoList).remove(item.id);
+  }
+
+  updateItem(todoList: TodoList, item: Item): Promise<void> {
+    return this.buildAngularFireListOfItems(todoList).set(item.id, item);
+  }
+
+  buildAngularFireListOfItems(todoList: TodoList): AngularFireList<Item> {
+    return this.db.list(`/todo-lists/${todoList.id}/items/`);
+  }
+
 }

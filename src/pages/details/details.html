@@ -14,27 +14,34 @@
 
 
 <ion-content padding>
-  <h1 *ngIf="!todoList.items" ion-text color="gray" text-center>
-    <i> OOPS NO TASKS YET!!</i>
-  </h1>
+  <div *ngIf="!todoList.items" text-center padding>
+    <ion-icon color="gray" name="notifications" style="font-size: 200px;"></ion-icon>
+    <h1  ion-text color="gray" text-center>OMG!</h1>
+    <h3  ion-text color="gray" text-center>You have no tasks.<br>Let's change that!</h3>
+  </div>
   <div *ngIf="!!todoList.items">
     <ion-card *ngFor="let item of (todoList.items | value)">
       <ion-card-content>
         <ion-card-title>
-          {{item.name}}
+          <ion-row >
+            <ion-col col-9> {{item.name}} </ion-col>
+            <ion-col align-self-start	 col-3>
+              <p ion-text text-right color="{{ item.state ? 'secondary' : 'danger' }}" ><b>{{item.state | finished }}</b></p>
+            </ion-col>
+          </ion-row>
         </ion-card-title>
         <p> {{item.description}}</p>
         <p> Status: {{item.state}}</p>
       </ion-card-content>
       <ion-row>
         <ion-col align-self-center text-center>
-          <button ion-button clear small icon-start color="danger">
+          <button ion-button clear small icon-start color="danger" (click)="deleteItem(item)">
             <ion-icon name="trash"></ion-icon>
             <div>Delete</div>
           </button>
         </ion-col>
         <ion-col align-self-center text-center>
-          <button ion-button clear small icon-start color="warning">
+          <button ion-button clear small icon-start color="warning" (click)="updateItem(item)">
             <ion-icon name="create"></ion-icon>
             <div>Edit</div>
           </button>

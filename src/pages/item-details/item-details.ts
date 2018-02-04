@@ -28,23 +28,30 @@ export class ItemDetailsPage {
     this._item = new Item('', false, '');
     this._AddOrEdit = !!this.navParams.get('addOrEdit');
     this.todoList = this.navParams.get('todoList');
-  }
-
-  submit() {
-    console.log(this._item);
-    console.log(this._AddOrEdit);
-    if (this._AddOrEdit) this.addItem();
+    if (!this._AddOrEdit) this._item = this.navParams.get('item');    
   }
   addItem() {
     this._TodoListProvider
       .addItem(this.todoList, this._item)
       .then(_ => {
-        this.presentToast('List succesfuly added');
-        this.viewCtrl.dismiss();
+        this.presentToast('Task succesfuly added');
+        this.leave();
       })
-      .catch(err => _ => {
+      .catch(err => {
         this.presentToast('Something wrong happened');
-        this.viewCtrl.dismiss();
+        this.leave();
+      });
+  }
+  updateItem() {
+    this._TodoListProvider
+      .updateItem(this.todoList, this._item)
+      .then(_ => {
+        this.presentToast('Task succesfuly updated');
+        this.leave();
+      })
+      .catch(err => {
+        this.presentToast('Something wrong happened');
+        this.leave();
       });
   }
 
@@ -55,6 +62,10 @@ export class ItemDetailsPage {
       cssClass: "text-center",
     });
     toast.present();
+  }
+
+  leave(noChange?) {
+    this.viewCtrl.dismiss(noChange);
   }
 
 }

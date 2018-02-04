@@ -48,7 +48,7 @@ export class HomePage {
           handler: data => this._TodoListProvider
             .addList(data)
             .then(_ => this.presentToast('List succesfuly added'))
-            .catch(err => _ => this.presentToast('Something wrong happened'))
+            .catch(err => this.presentToast('Something wrong happened'))
 
         }
       ]
@@ -70,7 +70,7 @@ export class HomePage {
           handler: _ => this._TodoListProvider
             .deleteList(todoList)
             .then(_ => this.presentToast('List succesfuly deleted'))
-            .catch(err => _ => this.presentToast('Something wrong happened'))
+            .catch(err => this.presentToast('Something wrong happened'))
         }
       ]
     });
@@ -97,7 +97,7 @@ export class HomePage {
           handler: data => this._TodoListProvider
             .updateList(todoList, data.name)
             .then(_ => this.presentToast('List name succesfuly updated'))
-            .catch(err => _ => this.presentToast('Something wrong happened'))
+            .catch(err => this.presentToast('Something wrong happened'))
 
         }
       ]
