@@ -28,3 +28,7 @@
   padding-top: 25%;
   padding-bottom: 25%;
 }
+
+ion-card >ion-card-content >div >ion-list >ion-item {
+  border-bottom: 1px solid lightgray !important;
+}
