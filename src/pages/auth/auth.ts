@@ -19,43 +19,20 @@ export class AuthPage {
   user: User;
   token: any; //change later
 
-  constructor(public navCtrl: NavController, public _AuthProvider: AuthProvider) {
+  constructor(private navCtrl: NavController, private _AuthProvider: AuthProvider) {
   }
-
-  ngOnInit() {
-  }
-
   signInGoogle($event) {
-    this._AuthProvider.loginUser()
-      .then((res: any) => {
-        this.navCtrl.setRoot('HomePage');
-        console.log('its working');
-        
-        // Google Access Token. 
-        //this.token = res.credential.accessToken;
-        //console.log('token:', this.token);
+    this._AuthProvider.signInGoogle()
+      .then((res) => {
+        //console.log('its working', res);
         // The signed-in user info.
-        //this.user = res.user;
-        //console.log('user:', this.user);
+        this.navCtrl.setRoot('HomePage', { res: res });
       })
       .catch(err => console.log('error:', err))
-
-    /*.googleLogin()
-      .then((res: any) => {
-        this.navCtrl.setRoot('HomePage');
-        // Google Access Token. 
-        this.token = res.credential.accessToken;
-        //console.log('token:', this.token);
-        // The signed-in user info.
-        this.user = res.user;
-        //console.log('user:', this.user);
-      })
-      .catch(err => console.log('error:', err))*/
   }
 
   signIn() {
     console.log('comming soon!');
-
   }
 
 }
