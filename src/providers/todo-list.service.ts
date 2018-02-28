@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Item, TodoList } from '../models/todo-list';
+import { Item, TodoList, User } from '../models';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
@@ -13,23 +13,20 @@ import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angular
 @Injectable()
 export class TodoListProvider {
   todoLists: AngularFireList<TodoList>;
-
+  baseUrl: string;
   constructor(public http: HttpClient, public db: AngularFireDatabase) { }
 
   // Lists
-  getTodoList(): Observable<TodoList[]> {
-    this.todoLists = this.db.list('/todo-lists/');
+  getTodoList(user: User): Observable<TodoList[]> {
+    this.baseUrl = `/users/${user.uid}/todo-lists`;
+    this.todoLists = this.db.list(this.baseUrl);
     return this.todoLists.valueChanges();
   }
 
-  addList(rawTodoList): Promise<void> {
-    const todoListRef$ = this.todoLists.push(<TodoList>{});
-    const todoList: TodoList = {
-      id: todoListRef$.key,
-      name: rawTodoList.name,
-      items: new Set()
-    };
+  addList(todoList): Promise<void> {
     // FB creates ID automatically. We just retreive the ID.
+    const todoListRef$ = this.todoLists.push(<TodoList>{});
+    todoList.id = todoListRef$.key;
     return todoListRef$.set(todoList);
   }
 
@@ -44,7 +41,7 @@ export class TodoListProvider {
   }
 
   getOneList(listId: string): Observable<TodoList> {
-    const list: AngularFireObject<TodoList> = this.db.object(`/todo-lists/${listId}/`);
+    const list: AngularFireObject<TodoList> = this.db.object(`${this.baseUrl}/${listId}/`);
     return list.valueChanges();
   }
 
@@ -65,7 +62,7 @@ export class TodoListProvider {
   }
 
   buildAngularFireListOfItems(todoList: TodoList): AngularFireList<Item> {
-    return this.db.list(`/todo-lists/${todoList.id}/items/`);
+    return this.db.list(`${this.baseUrl}/${todoList.id}/items/`);
   }
 
 }
