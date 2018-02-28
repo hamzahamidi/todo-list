@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, IonicPage, ToastController } from 'ionic-angular';
-import { TodoList } from '../../models/todo-list';
+import { TodoList, User } from '../../models';
 import { TodoListProvider } from '../../providers/todo-list.service';
 import { Observable } from 'rxjs/Observable';
+import { AuthProvider } from '../../providers/auth.service';
 
 @IonicPage()
 @Component({
@@ -12,20 +13,28 @@ import { Observable } from 'rxjs/Observable';
 export class HomePage {
   todoLists$: Observable<TodoList[]>;
   constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider, private alertCtrl: AlertController,
-    private toastCtrl: ToastController) {
+    private toastCtrl: ToastController, private _AuthProvider: AuthProvider) {
 
   }
 
   ngOnInit() {
-    this.getList();
+    this.checkConnection();
   }
 
-  goToDetails(todoLists) {
-    this.navCtrl.push('DetailsPage', { details: todoLists });
+
+  checkConnection() {
+    if (this._AuthProvider.checkConnection()) this.getUserData();
+    else this.navCtrl.setRoot('AuthPage');
   }
 
-  getList() {
-    this.todoLists$ = this._TodoListProvider.getTodoList();
+  getUserData() {
+    this._AuthProvider.getUserData().subscribe((user: User) => {
+      if (user) this.getList(user);
+    })
+  }
+
+  getList(user: User) {
+    this.todoLists$ = this._TodoListProvider.getTodoList(user);
   }
 
   addList() {
@@ -115,10 +124,21 @@ export class HomePage {
   }
 
   refresh(event) {
-    this.getList();
+    /*this.getList();
     setTimeout(() => {
       event.complete();
-    }, 2000);
+    }, 2000);*/
   }
 
+  goToDetails(todoLists) {
+    this.navCtrl.push('DetailsPage', { details: todoLists });
+  }
+
+  signOut() {
+    this._AuthProvider.signOut()
+      .then(res => {
+        this.navCtrl.setRoot('AuthPage');
+      })
+      .catch(err => console.log('error:', err));
+  }
 }
