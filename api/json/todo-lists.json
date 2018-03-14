@@ -1,0 +1,59 @@
+[
+    {
+    "name":"list1",
+    "items":[{
+        "name": "reading",
+        "state": true,
+        "description": "reading Hadoop course."
+      },
+      {
+        "name": "writing",
+        "state": true,
+        "description": "reading English report."
+      },
+      {
+        "name": "assisting",
+        "state": false,
+        "description": "assisting to the mobile course."
+      }
+    ]
+},
+{
+    "name":"list2",
+    "items":[{
+        "name": "reading",
+        "state": true,
+        "description": "reading Hadoop course."
+      },
+      {
+        "name": "writing",
+        "state": true,
+        "description": "reading English report."
+      },
+      {
+        "name": "assisting",
+        "state": false,
+        "description": "assisting to the mobile course."
+      }
+    ]
+},
+{
+    "name":"list3",
+    "items":[{
+        "name": "reading",
+        "state": true,
+        "description": "reading Hadoop course."
+      },
+      {
+        "name": "writing",
+        "state": true,
+        "description": "reading English report."
+      },
+      {
+        "name": "assisting",
+        "state": false,
+        "description": "assisting to the mobile course."
+      }
+    ]
+}
+]
