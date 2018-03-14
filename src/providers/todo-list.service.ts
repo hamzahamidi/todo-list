@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Item, TodoList, User } from '../models';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
+import { Storage } from '@ionic/storage';
+
 /*
   Generated class for the TodoListProvider provider.
 
@@ -14,13 +15,16 @@ import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angular
 export class TodoListProvider {
   todoLists: AngularFireList<TodoList>;
   baseUrl: string;
-  constructor(public http: HttpClient, public db: AngularFireDatabase) { }
+  constructor(public db: AngularFireDatabase, private storage: Storage) { }
 
   // Lists
-  getTodoList(user: User): Observable<TodoList[]> {
-    this.baseUrl = `/users/${user.uid}/todo-lists`;
-    this.todoLists = this.db.list(this.baseUrl);
-    return this.todoLists.valueChanges();
+  getTodoList(): Promise<Observable<TodoList[]>> {
+    return this.storage.get("user").then(_user => {
+      const user: User = JSON.parse(_user);
+      this.baseUrl = `/users/${user.uid}/todo-lists`;
+      this.todoLists = this.db.list(this.baseUrl);
+      return this.todoLists.valueChanges();
+    })
   }
 
   addList(todoList): Promise<void> {

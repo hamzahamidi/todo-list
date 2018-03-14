@@ -1,8 +1,6 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { HttpClientModule } from '@angular/common/http'; 
-import { HttpModule } from '@angular/http';
 import { MyApp } from './app.component';
 
 
@@ -12,27 +10,12 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 // Import modules
 import { CoreModule} from './core.module';
 
-// Import the AngularFire2 Module
-import { AngularFireModule } from 'angularfire2';
-
-// Export AngularFire2 settings
-export const firebaseConfig = {
-  apiKey: "AIzaSyAzamPI7qF93z18oStf4b_iuyJ5ROhtTvo",
-  authDomain: "m2gi-ionic-21b7b.firebaseapp.com",
-  databaseURL: "https://m2gi-ionic-21b7b.firebaseio.com",
-  projectId: "m2gi-ionic-21b7b",
-  storageBucket: "m2gi-ionic-21b7b.appspot.com",
-  messagingSenderId: "588101161325"
-};
 
 @NgModule({
   declarations: [MyApp],
   imports: [
     BrowserModule,
-    HttpClientModule,
-    HttpModule,
     IonicModule.forRoot(MyApp),
-    AngularFireModule.initializeApp(firebaseConfig),
     CoreModule
   ],
   bootstrap: [IonicApp],
