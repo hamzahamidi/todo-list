@@ -7,7 +7,7 @@
 
 
 
-<ion-content padding  no-bounce>
+<ion-content padding no-bounce>
   <ion-grid class="center-vertically">
     <ion-row>
       <ion-col>
@@ -23,13 +23,17 @@
             </ion-item>
           </div>
           <div padding>
-            <button ion-button color="secondary" type="submit" block round>Sign In</button>
+            <button ion-button color="primary" type="submit" block round>Sign In</button>
           </div>
         </form>
         <h1 text-center>OR</h1>
         <div padding text-center>
-          <button ion-button color="danger" block round (click)="signInGoogle($event)">Sign In with Google </button>
-          <button ion-button block round>Sign In with FaceBook </button>
+          <button ion-button color="google" block round (click)="signInGoogle($event)" icon-end>Sign In with Google
+            <ion-icon name="logo-googleplus"></ion-icon>
+          </button>
+          <button ion-button color="facebook" block round icon-end>Sign In with FaceBook
+            <ion-icon name="logo-facebook"></ion-icon>
+          </button>
         </div>
       </ion-col>
     </ion-row>
