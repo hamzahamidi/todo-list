@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController } from 'ionic-angular';
+import { IonicPage, NavController, MenuController } from 'ionic-angular';
 import { AuthProvider } from '../../providers/auth.service';
 import { User } from '../../models/user';
 
@@ -19,8 +19,17 @@ export class AuthPage {
   user: User;
   token: any; //change later
 
-  constructor(private navCtrl: NavController, private _AuthProvider: AuthProvider) {
+  constructor(private navCtrl: NavController, private _AuthProvider: AuthProvider, private menuCtrl: MenuController) {
   }
+
+  ionViewDidLoad(){
+    this.menuCtrl.enable(false, 'myMenu');
+  }
+  
+  ionViewDidLeave(){
+    this.menuCtrl.enable(true, 'myMenu');
+  }	
+
   signInGoogle($event) {
     this._AuthProvider.signInGoogle()
       .then((res) => {

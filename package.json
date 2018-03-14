@@ -1,6 +1,6 @@
 {
   "name": "todo-list",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "author": "Hamza Hamidi",
   "homepage": "http://ionicframework.com/",
   "private": true,
@@ -60,7 +60,8 @@
       "cordova-plugin-googleplus": {
         "REVERSED_CLIENT_ID": "com.googleusercontent.apps.588101161325-u6rc9vk39eri0ocomaqg4ha72kbfn1l0"
       },
-      "cordova-sqlite-storage": {}
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-statusbar": {}
     },
     "platforms": [
       "android",

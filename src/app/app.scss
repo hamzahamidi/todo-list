@@ -32,3 +32,26 @@
 ion-card >ion-card-content >div >ion-list >ion-item {
   border-bottom: 1px solid lightgray !important;
 }
+
+.navigation-drawer {
+  background-image: url("../assets/imgs/wallpaper.jpg");
+  background-size: cover;
+  height: 150px;
+}
+
+.profil {
+  position: absolute;
+  top: 20px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.profil-img{
+    border-radius: 50%;
+    height: 80px;
+}
+
+.profil-text{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

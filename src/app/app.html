@@ -1,1 +1,38 @@
-<ion-nav [root]="rootPage"></ion-nav>
+<ion-menu id="myMenu" [content]="content">
+  <ion-header class="navigation-drawer">
+    <div class="profil">
+      <img class="profil-img" src={{user?.photoURL}} alt="avatar">
+      <p class="profil-text" ion-text color="light">
+        <b>{{user?.displayName}}</b>
+        <br>{{user?.email}}
+      </p>
+    </div>
+  </ion-header>
+  <ion-content padding-vertical>
+    <ion-item no-lines>
+      <button menuClose ion-item item-right (click)="goToMyNotes()">
+        <ion-label>My notes</ion-label>
+      </button>
+      <ion-icon item-left name='list-box'></ion-icon>
+    </ion-item>
+    <ion-item no-lines>
+      <button menuClose ion-item item-right (click)="goToMySharedNotes()">
+        <ion-label>Shared</ion-label>
+      </button>
+      <ion-icon item-left name='md-share'></ion-icon>
+    </ion-item>
+    <ion-item>
+      <button menuClose no-lines ion-item item-right >
+        <ion-label>Share my notes</ion-label>
+      </button>
+      <ion-icon item-left name='people'></ion-icon>
+    </ion-item>
+    <ion-item no-lines>
+      <button menuClose ion-item item-right (click)="signOut()">
+        <ion-label> Sign Out</ion-label>
+      </button>
+      <ion-icon item-left name="log-out"></ion-icon>
+    </ion-item>
+  </ion-content>
+</ion-menu>
+<ion-nav #content [root]="rootPage"></ion-nav>

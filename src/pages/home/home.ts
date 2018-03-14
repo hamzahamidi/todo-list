@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, IonicPage, ToastController } from 'ionic-angular';
 import { TodoList } from '../../models';
-import { TodoListProvider } from '../../providers/todo-list.service';
+import { TodoListProvider } from '../../providers';
 import { Observable } from 'rxjs/Observable';
-import { AuthProvider } from '../../providers/auth.service';
 
 @IonicPage()
 @Component({
@@ -13,7 +12,7 @@ import { AuthProvider } from '../../providers/auth.service';
 export class HomePage {
   todoLists$: Observable<TodoList[]>;
   constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider, private alertCtrl: AlertController,
-    private toastCtrl: ToastController, private _AuthProvider: AuthProvider) {
+    private toastCtrl: ToastController) {
 
   }
 
@@ -120,10 +119,5 @@ export class HomePage {
 
   goToDetails(todoLists) {
     this.navCtrl.push('DetailsPage', { details: todoLists });
-  }
-
-  signOut() {
-    this.navCtrl.setRoot('AuthPage').then(_ => this._AuthProvider.signOut())
-      .catch(err => console.log('error:', err));
   }
 }
