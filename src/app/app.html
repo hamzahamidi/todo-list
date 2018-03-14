@@ -10,20 +10,20 @@
   </ion-header>
   <ion-content padding-vertical>
     <ion-item no-lines>
-      <button menuClose ion-item item-right>
+      <button menuClose ion-item item-right (click)="goToMyNotes()">
         <ion-label>My notes</ion-label>
       </button>
       <ion-icon item-left name='list-box'></ion-icon>
     </ion-item>
     <ion-item no-lines>
-      <button menuClose ion-item item-right>
+      <button menuClose ion-item item-right (click)="goToMySharedNotes()">
         <ion-label>Shared</ion-label>
       </button>
       <ion-icon item-left name='md-share'></ion-icon>
     </ion-item>
     <ion-item>
-      <button menuClose no-lines ion-item item-right>
-        <ion-label>Users shared with</ion-label>
+      <button menuClose no-lines ion-item item-right >
+        <ion-label>Share my notes</ion-label>
       </button>
       <ion-icon item-left name='people'></ion-icon>
     </ion-item>
