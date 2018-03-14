@@ -7,11 +7,13 @@ import { User } from '../models';
 import { GooglePlus } from '@ionic-native/google-plus';
 import { Platform } from 'ionic-angular';
 import { AngularFireDatabase } from 'angularfire2/database';
+import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class AuthProvider {
   user: Observable<User>;
-  constructor(private plt: Platform, private afAuth: AngularFireAuth, private db: AngularFireDatabase, private googlePlus: GooglePlus) { }
+  constructor(private plt: Platform, private afAuth: AngularFireAuth, private db: AngularFireDatabase,
+    private googlePlus: GooglePlus, private storage: Storage) { }
 
   signInGoogle(): Promise<User> {
     //on a device running Android or on a device running iOS.
@@ -65,21 +67,27 @@ export class AuthProvider {
       // Sets user data to firebase on login
       this.db.list(`/users/`).set(user.uid, user);
     }
-    localStorage.setItem('user', JSON.stringify(user));
-    return new Promise(resolve => resolve(user));
+    return this.storage.set('user', JSON.stringify(user));
   }
 
-  checkConnection(): boolean {
-    return !!localStorage.getItem("user");
+  getUserData(): Promise<string> {
+    return this.storage.get("user");
   }
-
-  getUserData() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    return this.db.object(`/users/${user.uid}`).valueChanges();
-  }
-
   signOut() {
-    return this.afAuth.auth.signOut()
-    .then(res => localStorage.clear());
+    if (this.plt.is('ios') || this.plt.is('android')) {
+      return this.nativeSignOut();
+    }
+    // on a desktop device.
+    else if (this.plt.is('core')) {
+      return this.clearStorage();
+    }
+  }
+  nativeSignOut() {
+    this.googlePlus.disconnect().then(_=> this.clearStorage());
+  }
+
+  clearStorage() {
+    return this.storage.clear()
+      .then(res => this.afAuth.auth.signOut());
   }
 }

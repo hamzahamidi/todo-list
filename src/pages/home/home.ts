@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, IonicPage, ToastController } from 'ionic-angular';
-import { TodoList, User } from '../../models';
+import { TodoList } from '../../models';
 import { TodoListProvider } from '../../providers/todo-list.service';
 import { Observable } from 'rxjs/Observable';
 import { AuthProvider } from '../../providers/auth.service';
@@ -18,23 +18,11 @@ export class HomePage {
   }
 
   ngOnInit() {
-    this.checkConnection();
+    this.getList();
   }
 
-
-  checkConnection() {
-    if (this._AuthProvider.checkConnection()) this.getUserData();
-    else this.navCtrl.setRoot('AuthPage');
-  }
-
-  getUserData() {
-    this._AuthProvider.getUserData().subscribe((user: User) => {
-      if (user) this.getList(user);
-    })
-  }
-
-  getList(user: User) {
-    this.todoLists$ = this._TodoListProvider.getTodoList(user);
+  getList() {
+    this._TodoListProvider.getTodoList().then(observableTodoList => this.todoLists$ = observableTodoList);
   }
 
   addList() {
@@ -135,10 +123,7 @@ export class HomePage {
   }
 
   signOut() {
-    this._AuthProvider.signOut()
-      .then(res => {
-        this.navCtrl.setRoot('AuthPage');
-      })
+    this.navCtrl.setRoot('AuthPage').then(_ => this._AuthProvider.signOut())
       .catch(err => console.log('error:', err));
   }
 }
