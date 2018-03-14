@@ -14,11 +14,12 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
   constructor(platform: Platform, app: App, statusBar: StatusBar, splashScreen: SplashScreen,
-    public _AuthProvider: AuthProvider) {
+    private _AuthProvider: AuthProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      statusBar.backgroundColorByHexString('#E91E63');
+      statusBar.styleDefault();
+      statusBar.backgroundColorByHexString('#87173c');
       splashScreen.hide();
     });
     app.viewDidLoad.subscribe(view => {
@@ -37,6 +38,12 @@ export class MyApp {
     })
   }
 
+  goToMyNotes() {
+    this.nav.setRoot('HomePage');
+  }
+
+  goToMySharedNotes() { 
+  }
   signOut() {
     this.nav.setRoot('AuthPage').then(_ => this._AuthProvider.signOut())
       .catch(err => console.log('error:', err));
