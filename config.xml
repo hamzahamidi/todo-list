@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.todo.list" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Todo List</name>
-    <description>Todo List using Ionic & Firebase.</description>
-    <author email="email@hamidihamza.com" href="http://hamidihamza.com/">Hamza HAMIDI</author>
+    <name>TodoList</name>
+    <description>TodoList using Ionic/Firebase.</description>
+    <author email="email@hamidihamza" href="http://hamidihamza.com/">Hamza HAMIDI</author>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -85,5 +85,5 @@
         <variable name="REVERSED_CLIENT_ID" value="com.googleusercontent.apps.588101161325-u6rc9vk39eri0ocomaqg4ha72kbfn1l0" />
     </plugin>
     <engine name="android" spec="7.0.0" />
-    <plugin name="cordova-sqlite-storage" spec="^2.2.1" />
+    <engine name="browser" spec="5.0.3" />
 </widget>

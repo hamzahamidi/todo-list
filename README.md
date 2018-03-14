@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/hamzahamidi/todo-list.svg?branch=master)](https://travis-ci.org/hamzahamidi/todo-list) [![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list)[![Maintainability](https://api.codeclimate.com/v1/badges/a884eb46aac726ed5c65/maintainability)](https://codeclimate.com/github/hamzahamidi/todo-list/maintainability)
 # TODO-LIST IONIC FIREBASE PROJECT
 This a small Todo-List project with Ionic3 & Angularfire2.
 The application is able to do the following:
