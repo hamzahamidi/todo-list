@@ -9,6 +9,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 
 // Import modules
 import { CoreModule} from './core.module';
+import { AlertProvider } from '../providers';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { CoreModule} from './core.module';
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    AlertProvider
   ]
 })
 export class AppModule {}

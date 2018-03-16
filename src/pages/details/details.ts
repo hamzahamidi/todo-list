@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavParams, ToastController, ModalController, AlertController } from 'ionic-angular';
+import { IonicPage, NavParams, ModalController } from 'ionic-angular';
 import { TodoList, Item } from '../../models/todo-list';
 
 // Providers
 import { TodoListProvider } from '../../providers/todo-list.service';
+import { AlertProvider } from '../../providers';
+import { CustomAlert } from '../../models';
 
 /**
  * Generated class for the DetailsPage page.
@@ -20,8 +22,8 @@ import { TodoListProvider } from '../../providers/todo-list.service';
 export class DetailsPage {
   todoList: TodoList;
 
-  constructor(private navParams: NavParams, private toastCtrl: ToastController, private modalCtrl: ModalController,
-    private _TodoListProvider: TodoListProvider, private alertCtrl: AlertController) {
+  constructor(private navParams: NavParams, private modalCtrl: ModalController,
+    private _TodoListProvider: TodoListProvider, private alert: AlertProvider) {
   }
 
   ngOnInit() {
@@ -43,24 +45,20 @@ export class DetailsPage {
   }
 
   deleteItem(item: Item) {
-    let prompt = this.alertCtrl.create({
-      title: 'Delete List',
-      message: "Are you sure you want to delete this task?",
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Yes',
-          handler: _ => this._TodoListProvider
-            .deleteItem(this.todoList, item)
-            .then(_ => { this.getItem(); this.presentToast('Task succesfuly deleted'); })
-            .catch(err => this.presentToast('Something wrong happened'))
-        }
-      ]
-    });
-    prompt.present();
+    const alert: CustomAlert = {
+      title: 'Delete Note',
+      message: "Are you sure you want to delete this Note?",
+      inputs: [],
+      noText: 'Cancel',
+      yesText: 'Yes',
+      yesToastThen: 'Note succesfuly deleted',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (_ => {
+        this.getItem();
+        return this._TodoListProvider.deleteItem(this.todoList, item)
+      })
+    }
+    this.alert.createAlert(alert);
   }
 
   updateItem(item: Item) {
@@ -73,12 +71,7 @@ export class DetailsPage {
   }
 
   presentToast(message: string) {
-    let toast = this.toastCtrl.create({
-      message: message,
-      duration: 3000,
-      cssClass: "text-center",
-    });
-    toast.present();
+    this.alert.presentToast(message);
   }
 
 }

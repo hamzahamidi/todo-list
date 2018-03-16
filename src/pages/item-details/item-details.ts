@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavParams, ViewController, ToastController } from 'ionic-angular';
+import { IonicPage, NavParams, ViewController } from 'ionic-angular';
 import { Item, TodoList } from '../../models/todo-list';
 import { TodoListProvider } from '../../providers/todo-list.service';
+import { AlertProvider } from '../../providers';
 
 /**
  * Generated class for the ItemDetailsPage page.
@@ -21,24 +22,24 @@ export class ItemDetailsPage {
   _item: Item;
 
   constructor(private navParams: NavParams, private viewCtrl: ViewController, private _TodoListProvider: TodoListProvider,
-    private toastCtrl: ToastController, ) {
+    private alert: AlertProvider) {
   }
 
   ngOnInit() {
     this._item = new Item('', false, '');
     this._AddOrEdit = !!this.navParams.get('addOrEdit');
     this.todoList = this.navParams.get('todoList');
-    if (!this._AddOrEdit) this._item = this.navParams.get('item');    
+    if (!this._AddOrEdit) this._item = this.navParams.get('item');
   }
   addItem() {
     this._TodoListProvider
       .addItem(this.todoList, this._item)
       .then(_ => {
-        this.presentToast('Task succesfuly added');
+        this.alert.presentToast('Task succesfuly added');
         this.leave();
       })
       .catch(err => {
-        this.presentToast('Something wrong happened');
+        this.alert.presentToast('Something wrong happened');
         this.leave();
       });
   }
@@ -46,22 +47,13 @@ export class ItemDetailsPage {
     this._TodoListProvider
       .updateItem(this.todoList, this._item)
       .then(_ => {
-        this.presentToast('Task succesfuly updated');
+        this.alert.presentToast('Task succesfuly updated');
         this.leave();
       })
       .catch(err => {
-        this.presentToast('Something wrong happened');
+        this.alert.presentToast('Something wrong happened');
         this.leave();
       });
-  }
-
-  presentToast(message: string) {
-    let toast = this.toastCtrl.create({
-      message: message,
-      duration: 3000,
-      cssClass: "text-center",
-    });
-    toast.present();
   }
 
   leave(noChange?) {
