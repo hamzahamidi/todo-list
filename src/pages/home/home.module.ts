@@ -4,9 +4,11 @@ import { HomePage } from './home';
 
 // Pipe
 import { PipesModule } from '../../pipes/pipes.module';
+import { SharedModule } from '../../shared';
 
 @NgModule({
   declarations: [HomePage],
-  imports: [IonicPageModule.forChild(HomePage),PipesModule]
+  imports: [IonicPageModule.forChild(HomePage),PipesModule,
+     SharedModule]
 })
 export class HomePageModule { }

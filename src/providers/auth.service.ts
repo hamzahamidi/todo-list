@@ -73,21 +73,25 @@ export class AuthProvider {
   getUserData(): Promise<string> {
     return this.storage.get("user");
   }
-  signOut() {
-    if (this.plt.is('ios') || this.plt.is('android')) {
-      return this.nativeSignOut();
-    }
-    // on a desktop device.
-    else if (this.plt.is('core')) {
-      return this.clearStorage();
-    }
-  }
-  nativeSignOut() {
-    this.googlePlus.disconnect().then(_=> this.clearStorage());
+  signOut(): Promise<any> {
+    return this.storage.clear()
+      .then(_ => this.fireBaseSignOut())
   }
 
-  clearStorage() {
-    return this.storage.clear()
-      .then(res => this.afAuth.auth.signOut());
+  fireBaseSignOut(): Promise<any> {
+    return this.afAuth.auth.signOut()
+      .then(_ => {
+        if (this.plt.is('ios') || this.plt.is('android')) {
+          return this.nativeSignOut();
+        }
+        // on a desktop device.
+        else if (this.plt.is('core')) {
+          return Promise.resolve(null);
+        }
+      }
+      )
+  }
+  nativeSignOut(): Promise<any> {
+    return this.googlePlus.disconnect();
   }
 }
