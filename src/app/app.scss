@@ -29,29 +29,31 @@
   padding-bottom: 25%;
 }
 
-ion-card >ion-card-content >div >ion-list >ion-item {
+ion-card>ion-card-content>div>ion-list>ion-item {
   border-bottom: 1px solid lightgray !important;
 }
 
 .navigation-drawer {
   background-image: url("../assets/imgs/wallpaper.jpg");
   background-size: cover;
-  height: 150px;
+  height: auto;
 }
 
 .profil {
-  position: absolute;
-  top: 20px;
-  padding-right: 10px;
-  padding-left: 10px;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
 }
 
-.profil-img{
-    border-radius: 50%;
-    height: 80px;
-}
-
-.profil-text{
-  margin-top: 10px;
+.profil-img {
+  margin-top: 25px;
   margin-bottom: 10px;
+  border-radius: 50%;
+  height: 80px;
+}
+
+.profil-text {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }

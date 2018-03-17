@@ -12,18 +12,20 @@ export class MyApp {
   rootPage: any = 'AuthPage';
   user: User;
   @ViewChild(Nav) nav: Nav;
+  activePage: string;
 
-  constructor(platform: Platform, app: App, statusBar: StatusBar, splashScreen: SplashScreen,
+  constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
     private _AuthProvider: AuthProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      statusBar.styleDefault();
-      statusBar.backgroundColorByHexString('#87173c');
+      this.statusBar.styleLightContent();
+      this.statusBar.backgroundColorByHexString('#87173c');
       splashScreen.hide();
     });
     app.viewDidLoad.subscribe(view => {
-      console.log(view);
+      this.activePage = view.id;
+      console.log(this.activePage);
       this.getUserData();
     })
   }
@@ -32,20 +34,36 @@ export class MyApp {
       console.log('user from storage:', user);
       if (!!user) {
         this.user = JSON.parse(user);
-        if (this.rootPage = 'AuthPage') this.rootPage = 'HomePage';
+        if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
       }
-      else this.rootPage = 'AuthPage';
+      else this.signOut();
     })
   }
 
   goToMyNotes() {
-    this.nav.setRoot('HomePage');
+    this.rootPage = 'HomePage';
   }
+  
+  
+  goToMySharedNotes() {
 
-  goToMySharedNotes() { 
+  }
+  
+  goToShareMyNotes() {
+    this.rootPage = 'ShareMyNotesPage'
   }
   signOut() {
-    this.nav.setRoot('AuthPage').then(_ => this._AuthProvider.signOut())
-      .catch(err => console.log('error:', err));
+    this._AuthProvider.signOut()
+    .catch(err => console.log('error:', err))
+    .then(_ => this.rootPage = 'AuthPage')
+  }
+  
+  closeMenu(){
+    this.statusBar.overlaysWebView(false);
+    this.statusBar.backgroundColorByHexString('#87173c');
+  }
+  
+  dragMenu(){
+    this.statusBar.overlaysWebView(true);
   }
 }
