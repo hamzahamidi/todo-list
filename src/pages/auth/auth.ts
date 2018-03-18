@@ -22,20 +22,20 @@ export class AuthPage {
   constructor(private navCtrl: NavController, private _AuthProvider: AuthProvider, private menuCtrl: MenuController) {
   }
 
-  ionViewDidLoad(){
+  ionViewDidLoad() {
     this.menuCtrl.enable(false, 'myMenu');
   }
-  
-  ionViewDidLeave(){
+
+  ionViewDidLeave() {
     this.menuCtrl.enable(true, 'myMenu');
-  }	
+  }
 
   signInGoogle($event) {
     this._AuthProvider.signInGoogle()
       .then((res) => {
         //console.log('its working', res);
         // The signed-in user info.
-        this.navCtrl.setRoot('HomePage', { res: res });
+        if (!!res) this.navCtrl.setRoot('HomePage', { res: res });
       })
       .catch(err => console.log('error:', err))
   }

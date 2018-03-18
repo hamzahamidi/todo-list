@@ -5,17 +5,19 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 import { User } from '../models';
 import { GooglePlus } from '@ionic-native/google-plus';
-import { Platform } from 'ionic-angular';
+import { Platform, LoadingController, Loading } from 'ionic-angular';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class AuthProvider {
+  loading: Loading;
   user: Observable<User>;
   constructor(private plt: Platform, private afAuth: AngularFireAuth, private db: AngularFireDatabase,
-    private googlePlus: GooglePlus, private storage: Storage) { }
+    private googlePlus: GooglePlus, private storage: Storage, private loadingCtrl: LoadingController) { }
 
   signInGoogle(): Promise<User> {
+    this.showLoader();
     //on a device running Android or on a device running iOS.
     if (this.plt.is('ios') || this.plt.is('android')) {
       return this.nativeloginUser();
@@ -31,7 +33,7 @@ export class AuthProvider {
    */
   browserGoogleLogin(): Promise<User> {
     const provider = new firebase.auth.GoogleAuthProvider();
-    return this.oAuthLogin(provider);
+    return this.oAuthLogin(provider).catch(_=> this.loading.dismiss());
   }
   oAuthLogin(provider): Promise<User> {
     return this.afAuth.auth.signInWithPopup(provider)
@@ -44,7 +46,7 @@ export class AuthProvider {
     return this.googlePlus.login({
       'webClientId': '588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com'
     })
-      .then(provider => this.oAuthNativeLogin(provider));
+      .then(provider => this.oAuthNativeLogin(provider)).catch(_=> this.loading.dismiss());
   }
 
   oAuthNativeLogin(provider): Promise<User> {
@@ -55,6 +57,7 @@ export class AuthProvider {
 
   updateUserData(credential): Promise<User> {
     //console.log('credential:', credential);
+    firebase.database().goOnline();
     let user: User = {
       uid: credential.user.uid,
       email: credential.user.email,
@@ -67,6 +70,7 @@ export class AuthProvider {
       // Sets user data to firebase on login
       this.db.list(`/users/`).set(user.uid, user);
     }
+    this.loading.dismiss();
     return this.storage.set('user', JSON.stringify(user));
   }
 
@@ -94,5 +98,12 @@ export class AuthProvider {
   }
   nativeSignOut(): Promise<any> {
     return this.googlePlus.disconnect();
+  }
+
+  showLoader() {
+    this.loading = this.loadingCtrl.create({
+      content: 'Please wait...'
+    });
+    this.loading.present();
   }
 }
