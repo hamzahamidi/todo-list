@@ -15,12 +15,7 @@
 
 <ion-content padding>
   <div *ngIf="!!todoList">
-    <div *ngIf="!todoList.items" text-center padding>
-      <ion-icon color="gray" name="notifications" style="font-size: 200px;"></ion-icon>
-      <h1 ion-text color="gray" text-center>OMG!</h1>
-      <h3 ion-text color="gray" text-center>You have no tasks.
-        <br>Let's change that!</h3>
-    </div>
+    <empty-list *ngIf="!todoList.items"></empty-list>
     <div *ngIf="!!todoList.items">
       <ion-card *ngFor="let item of (todoList.items | value)">
         <ion-card-content (click)="updateItem(item)">

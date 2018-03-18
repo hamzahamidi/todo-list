@@ -3,7 +3,6 @@ import { NavController, IonicPage } from 'ionic-angular';
 import { TodoList, CustomAlert } from '../../models';
 import { TodoListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
-import { Observable } from 'rxjs/Observable';
 
 @IonicPage()
 @Component({
@@ -11,8 +10,10 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: 'home.html'
 })
 export class HomePage {
-  todoLists$: Observable<TodoList[]>;
-  _showHideSearchBar:boolean=true;
+  todoLists: TodoList[];
+  _showHideSearchBar: boolean = true;
+  _emptyTodoList: boolean = true;
+  _showSpinner: boolean = true;
   constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider,
     private alert: AlertProvider) {
 
@@ -23,7 +24,13 @@ export class HomePage {
   }
 
   getList() {
-    this._TodoListProvider.getTodoList().then(observableTodoList => this.todoLists$ = observableTodoList);
+    this._TodoListProvider.getTodoList().then(observableTodoList => {
+      observableTodoList.subscribe(todoLists => {
+        this._showSpinner = false;
+        this._emptyTodoList = todoLists.length < 1;
+        this.todoLists = todoLists;
+      })
+    });
   }
 
   addList() {
@@ -85,8 +92,8 @@ export class HomePage {
     this.navCtrl.push('DetailsPage', { details: todoLists });
   }
 
-  refreshLists(refresher){
-    this.todoLists$ = Observable.of(null);
+  refreshLists(refresher) {
+    //this.todoLists$ = Observable.of(null);
     this.getList();
     setTimeout(() => {
       refresher.complete();

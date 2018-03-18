@@ -1,12 +1,13 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
-import { NavBarComponent, AlertProvider } from './';
+import { NavBarComponent, EmptyListComponent, AlertProvider } from './';
 import { IonicPageModule } from 'ionic-angular';
 @NgModule({
-	declarations: [NavBarComponent],
+	declarations: [NavBarComponent, EmptyListComponent],
 	imports: [
 		IonicPageModule.forChild(NavBarComponent),
+		IonicPageModule.forChild(EmptyListComponent),
 	],
-	exports: [NavBarComponent]
+	exports: [NavBarComponent, EmptyListComponent]
 })
 export class SharedModule {
 	static forRoot(): ModuleWithProviders {
