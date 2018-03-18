@@ -9,6 +9,7 @@
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
+  <ion-spinner *ngIf="!(todoLists$ | async)"></ion-spinner>
   <ion-card *ngFor="let todoList of (todoLists$ | async)">
     <ion-card-header>
       <h1 text-center ion-text color="primary">{{todoList.name}}</h1>

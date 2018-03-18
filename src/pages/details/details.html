@@ -23,7 +23,7 @@
     </div>
     <div *ngIf="!!todoList.items">
       <ion-card *ngFor="let item of (todoList.items | value)">
-        <ion-card-content>
+        <ion-card-content (click)="updateItem(item)">
           <ion-card-title>
             <ion-row>
               <ion-col col-9> {{item.name}} </ion-col>
