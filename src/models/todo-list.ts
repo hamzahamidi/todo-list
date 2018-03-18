@@ -9,10 +9,12 @@ export class Item {
     name: string;
     state: boolean;
     description: string;
-    constructor(name: string, state: boolean, description: string) {
-        this.name = name;
-        this.state = state;
-        this.description = description;
+    date?: number;
+    constructor(name?: string, state?: boolean, description?: string) {
+        this.name = name || '';
+        this.state = state || false;
+        this.description = description || '';
+        this.date = Date.now();
     }
 }
 

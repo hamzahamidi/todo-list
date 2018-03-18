@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
-import { ValuePipe } from './value.pipe';
-import { FinishedPipe } from './finished.pipe';
+import { ValuePipe, FinishedPipe, DateCreatedPipe } from './';
+
 @NgModule({
-	declarations: [ValuePipe,
-    FinishedPipe],
-	imports: [],
-	exports: [ValuePipe,
-    FinishedPipe]
+    declarations: [ValuePipe,
+        FinishedPipe,
+        DateCreatedPipe],
+    imports: [],
+    exports: [ValuePipe,
+        FinishedPipe,
+        DateCreatedPipe]
 })
-export class PipesModule {}
+export class PipesModule { }
