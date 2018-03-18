@@ -29,6 +29,9 @@ export class HomePage {
         this._showSpinner = false;
         this._emptyTodoList = todoLists.length < 1;
         this.todoLists = todoLists;
+        //console.log('todolist', this.todoLists);
+        //console.log('_emptyTodoList', this._emptyTodoList);
+        //console.log('showspinner', this._showSpinner);
       })
     });
   }

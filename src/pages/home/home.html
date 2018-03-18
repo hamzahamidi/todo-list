@@ -5,11 +5,11 @@
 <ion-content padding>
   <ion-searchbar [hidden]="_showHideSearchBar" [(ngModel)]="users">
   </ion-searchbar>
-  <ion-refresher (ionRefresh)="refreshLists($event)">
+  <ion-spinner *ngIf="_showSpinner"></ion-spinner>
+  <ion-refresher *ngIf="!_showSpinner" (ionRefresh)="refreshLists($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
-  <ion-spinner *ngIf="_showSpinner"></ion-spinner>
   <div *ngIf="!_showSpinner">
     <empty-list *ngIf="_emptyTodoList"></empty-list>
     <ion-card *ngFor="let todoList of todoLists">
