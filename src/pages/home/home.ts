@@ -11,6 +11,7 @@ import { Observable } from 'rxjs/Observable';
 })
 export class HomePage {
   todoLists$: Observable<TodoList[]>;
+  _showHideSearchBar:boolean=true;
   constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider, private alertCtrl: AlertController,
     private toastCtrl: ToastController) {
 
@@ -119,5 +120,13 @@ export class HomePage {
 
   goToDetails(todoLists) {
     this.navCtrl.push('DetailsPage', { details: todoLists });
+  }
+
+  refreshLists(refresher){
+    this.todoLists$ = Observable.of(null);
+    this.getList();
+    setTimeout(() => {
+      refresher.complete();
+    }, 2000);
   }
 }
