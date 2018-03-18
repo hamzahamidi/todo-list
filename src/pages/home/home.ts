@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, IonicPage, ToastController } from 'ionic-angular';
-import { TodoList } from '../../models';
-import { TodoListProvider } from '../../providers';
+import { NavController, IonicPage } from 'ionic-angular';
+import { TodoList, CustomAlert } from '../../models';
+import { TodoListProvider } from '../../core';
+import { AlertProvider } from '../../shared';
 import { Observable } from 'rxjs/Observable';
 
 @IonicPage()
@@ -12,8 +13,8 @@ import { Observable } from 'rxjs/Observable';
 export class HomePage {
   todoLists$: Observable<TodoList[]>;
   _showHideSearchBar:boolean=true;
-  constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider, private alertCtrl: AlertController,
-    private toastCtrl: ToastController) {
+  constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider,
+    private alert: AlertProvider) {
 
   }
 
@@ -26,56 +27,38 @@ export class HomePage {
   }
 
   addList() {
-    let prompt = this.alertCtrl.create({
+    const alert: CustomAlert = {
       title: 'List Name',
       message: "Enter a name for this new list",
-      inputs: [
-        {
-          name: 'name',
-          placeholder: 'Title'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Save',
-          handler: data => this._TodoListProvider
-            .addList(data)
-            .then(_ => this.presentToast('List succesfuly added'))
-            .catch(err => this.presentToast('Something wrong happened'))
-
-        }
-      ]
-    });
-    prompt.present();
+      inputs: [{
+        name: 'name',
+        placeholder: 'Title'
+      }],
+      noText: 'Cancel',
+      yesText: 'Save',
+      yesToastThen: 'List succesfuly added',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (data => this._TodoListProvider.addList(data))
+    }
+    this.alert.createAlert(alert);
   }
 
   deleteList(todoList: TodoList) {
-    let prompt = this.alertCtrl.create({
+    const alert: CustomAlert = {
       title: 'Delete List',
       message: "Are you sure you want to delete this list?",
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Yes',
-          handler: _ => this._TodoListProvider
-            .deleteList(todoList)
-            .then(_ => this.presentToast('List succesfuly deleted'))
-            .catch(err => this.presentToast('Something wrong happened'))
-        }
-      ]
-    });
-    prompt.present();
+      inputs: [],
+      noText: 'Cancel',
+      yesText: 'Yes',
+      yesToastThen: 'List succesfuly deleted',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (_ => this._TodoListProvider.deleteList(todoList))
+    }
+    this.alert.createAlert(alert);
   }
 
   updateList(todoList: TodoList) {
-    let prompt = this.alertCtrl.create({
+    const alert: CustomAlert = {
       title: 'Update List Name',
       message: "Enter the new list name",
       inputs: [
@@ -84,38 +67,18 @@ export class HomePage {
           placeholder: 'New Title'
         }
       ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Save',
-          handler: data => this._TodoListProvider
-            .updateList(todoList, data.name)
-            .then(_ => this.presentToast('List name succesfuly updated'))
-            .catch(err => this.presentToast('Something wrong happened'))
-
-        }
-      ]
-    });
-    prompt.present();
+      noText: 'Cancel',
+      yesText: 'Save',
+      yesToastThen: 'List name succesfuly updated',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (data => this._TodoListProvider.updateList(todoList, data.name)
+      )
+    }
+    this.alert.createAlert(alert);
   }
 
   presentToast(message: string) {
-    let toast = this.toastCtrl.create({
-      message: message,
-      duration: 3000,
-      cssClass: "text-center",
-    });
-    toast.present();
-  }
-
-  refresh(event) {
-    /*this.getList();
-    setTimeout(() => {
-      event.complete();
-    }, 2000);*/
+    this.alert.presentToast(message);
   }
 
   goToDetails(todoLists) {

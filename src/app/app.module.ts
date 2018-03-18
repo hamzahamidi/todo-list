@@ -8,7 +8,8 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 // Import modules
-import { CoreModule} from './core.module';
+import { CoreModule } from '../core';
+import { SharedModule } from '../shared';
 
 
 @NgModule({
@@ -16,14 +17,15 @@ import { CoreModule} from './core.module';
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
-    CoreModule
+    CoreModule,
+    SharedModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [MyApp],
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
-export class AppModule {}
+export class AppModule { }

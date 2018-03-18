@@ -7,51 +7,56 @@
 <ion-header>
 
   <ion-navbar color='primary'>
-    <ion-title>{{todoList.name}}</ion-title>
+    <ion-title>{{todoList?.name}}</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
-  <div *ngIf="!todoList.items" text-center padding>
-    <ion-icon color="gray" name="notifications" style="font-size: 200px;"></ion-icon>
-    <h1  ion-text color="gray" text-center>OMG!</h1>
-    <h3  ion-text color="gray" text-center>You have no tasks.<br>Let's change that!</h3>
-  </div>
-  <div *ngIf="!!todoList.items">
-    <ion-card *ngFor="let item of (todoList.items | value)">
-      <ion-card-content>
-        <ion-card-title>
-          <ion-row >
-            <ion-col col-9> {{item.name}} </ion-col>
-            <ion-col align-self-start	 col-3>
-              <p ion-text text-right color="{{ item.state ? 'secondary' : 'danger' }}" ><b>{{item.state | finished }}</b></p>
-            </ion-col>
-          </ion-row>
-        </ion-card-title>
-        <p> {{item.description}}</p>
-      </ion-card-content>
-      <ion-row>
-        <ion-col align-self-center text-center>
-          <button ion-button clear small icon-start color="danger" (click)="deleteItem(item)">
-            <ion-icon name="trash"></ion-icon>
-            <div>Delete</div>
-          </button>
-        </ion-col>
-        <ion-col align-self-center text-center>
-          <button ion-button clear small icon-start color="warning" (click)="updateItem(item)">
-            <ion-icon name="create"></ion-icon>
-            <div>Edit</div>
-          </button>
-        </ion-col>
-        <ion-col align-self-center text-center>
-          <ion-note>
-            11h ago
-          </ion-note>
-        </ion-col>
-      </ion-row>
-    </ion-card>
+  <div *ngIf="!!todoList">
+    <div *ngIf="!todoList.items" text-center padding>
+      <ion-icon color="gray" name="notifications" style="font-size: 200px;"></ion-icon>
+      <h1 ion-text color="gray" text-center>OMG!</h1>
+      <h3 ion-text color="gray" text-center>You have no tasks.
+        <br>Let's change that!</h3>
+    </div>
+    <div *ngIf="!!todoList.items">
+      <ion-card *ngFor="let item of (todoList.items | value)">
+        <ion-card-content>
+          <ion-card-title>
+            <ion-row>
+              <ion-col col-9> {{item.name}} </ion-col>
+              <ion-col align-self-start col-3>
+                <p ion-text text-right color="{{ item.state ? 'success' : 'danger' }}">
+                  <b>{{item.state | finished }}</b>
+                </p>
+              </ion-col>
+            </ion-row>
+          </ion-card-title>
+          <p> {{item.description}}</p>
+        </ion-card-content>
+        <ion-row>
+          <ion-col align-self-center text-center>
+            <button ion-button clear small icon-start color="danger" (click)="deleteItem(item)">
+              <ion-icon name="trash"></ion-icon>
+              <div>Delete</div>
+            </button>
+          </ion-col>
+          <ion-col align-self-center text-center>
+            <button ion-button clear small icon-start color="warning" (click)="updateItem(item)">
+              <ion-icon name="create"></ion-icon>
+              <div>Edit</div>
+            </button>
+          </ion-col>
+          <ion-col align-self-center text-center>
+            <ion-note>
+              11h ago
+            </ion-note>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    </div>
   </div>
   <ion-fab right bottom>
     <button color="secondary" ion-fab (click)="addItem()">

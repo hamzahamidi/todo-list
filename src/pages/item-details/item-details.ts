@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavParams, ViewController, ToastController } from 'ionic-angular';
-import { Item, TodoList } from '../../models/todo-list';
-import { TodoListProvider } from '../../providers/todo-list.service';
+import { IonicPage, NavParams, ViewController } from 'ionic-angular';
+import { Item, TodoList } from '../../models';
+import { TodoListProvider } from '../../core';
+import { AlertProvider } from '../../shared';
 
 /**
  * Generated class for the ItemDetailsPage page.
@@ -21,7 +22,7 @@ export class ItemDetailsPage {
   _item: Item;
 
   constructor(private navParams: NavParams, private viewCtrl: ViewController, private _TodoListProvider: TodoListProvider,
-    private toastCtrl: ToastController, ) {
+    private alert: AlertProvider ) {
   }
 
   ngOnInit() {
@@ -32,36 +33,27 @@ export class ItemDetailsPage {
   }
   addItem() {
     this._TodoListProvider
-      .addItem(this.todoList, this._item)
-      .then(_ => {
-        this.presentToast('Task succesfuly added');
-        this.leave();
-      })
-      .catch(err => {
-        this.presentToast('Something wrong happened');
-        this.leave();
-      });
+    .addItem(this.todoList, this._item)
+    .then(_ => {
+      this.alert.presentToast('Note succesfuly added');
+      this.leave();
+    })
+    .catch(err => {
+      this.alert.presentToast('Something wrong happened');
+      this.leave();
+    });
   }
   updateItem() {
     this._TodoListProvider
-      .updateItem(this.todoList, this._item)
-      .then(_ => {
-        this.presentToast('Task succesfuly updated');
-        this.leave();
-      })
-      .catch(err => {
-        this.presentToast('Something wrong happened');
-        this.leave();
-      });
-  }
-
-  presentToast(message: string) {
-    let toast = this.toastCtrl.create({
-      message: message,
-      duration: 3000,
-      cssClass: "text-center",
+    .updateItem(this.todoList, this._item)
+    .then(_ => {
+      this.alert.presentToast('Note succesfuly updated');
+      this.leave();
+    })
+    .catch(err => {
+      this.alert.presentToast('Something wrong happened');
+      this.leave();
     });
-    toast.present();
   }
 
   leave(noChange?) {
