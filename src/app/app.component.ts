@@ -2,8 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { Platform, App, Nav } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { AuthProvider } from '../providers';
-import { User } from '../models';
+import { AuthProvider } from '../core';
+import { User, CustomAlert } from '../models';
+import { AlertProvider } from '../shared';
 
 @Component({
   templateUrl: 'app.html'
@@ -15,7 +16,7 @@ export class MyApp {
   activePage: string;
 
   constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
-    private _AuthProvider: AuthProvider) {
+    private _AuthProvider: AuthProvider, private alert: AlertProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -25,7 +26,7 @@ export class MyApp {
     });
     app.viewDidLoad.subscribe(view => {
       this.activePage = view.id;
-      console.log(this.activePage);
+      console.log('activePage',this.activePage);
       this.getUserData();
     })
   }
@@ -52,8 +53,22 @@ export class MyApp {
   goToShareMyNotes() {
     this.rootPage = 'ShareMyNotesPage'
   }
-  signOut() {
-    this._AuthProvider.signOut()
+
+  confirmSignOut(){
+    const alert: CustomAlert = {
+      title: 'Are you sure you want to sign out?',
+      message: "You may loose all cached notes!",
+      inputs: [],
+      noText: 'Cancel',
+      yesText: 'Yes',
+      yesToastThen: 'Succesfuly signed out',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (_ => this.signOut())
+    }
+    this.alert.createAlert(alert);
+  }
+  signOut(): Promise<any> {
+    return this._AuthProvider.signOut()
     .catch(err => console.log('error:', err))
     .then(_ => this.rootPage = 'AuthPage')
   }

@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { NavBarComponent } from './';
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NavBarComponent, AlertProvider } from './';
 import { IonicPageModule } from 'ionic-angular';
 @NgModule({
 	declarations: [NavBarComponent],
@@ -8,4 +8,11 @@ import { IonicPageModule } from 'ionic-angular';
 	],
 	exports: [NavBarComponent]
 })
-export class SharedModule { }
+export class SharedModule {
+	static forRoot(): ModuleWithProviders {
+		return {
+			ngModule: SharedModule,
+			providers: [AlertProvider]
+		};
+	}
+}

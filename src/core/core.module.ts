@@ -8,7 +8,7 @@ import { AngularFirestoreModule } from 'angularfire2/firestore';
 
 // Providers
 import { GooglePlus } from '@ionic-native/google-plus';
-import { AuthProvider, TodoListProvider } from '../providers';
+import { AuthProvider, TodoListProvider } from './';
 
 // Import the AngularFire2 Module
 import { AngularFireModule } from 'angularfire2';

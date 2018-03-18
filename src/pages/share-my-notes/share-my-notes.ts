@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage } from 'ionic-angular';
 import QRCode from 'qrcode'
-import { AuthProvider } from '../../providers';
+import { AuthProvider } from '../../core';
 import { User } from '../../models';
 
 /**
