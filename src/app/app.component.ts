@@ -24,11 +24,7 @@ export class MyApp {
       this.statusBar.backgroundColorByHexString('#87173c');
       splashScreen.hide();
     });
-    app.viewDidEnter.subscribe(view => {
-      this.activePage = view.id;
-      console.log('activePage',this.activePage);
-      this.getUserData();
-    })
+    app.viewDidEnter.subscribe(view => this.getUserData());
   }
   getUserData() {
     this._AuthProvider.getUserData().then(user => {
@@ -38,7 +34,7 @@ export class MyApp {
         this.user = JSON.parse(user);
         if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
       }
-      else if (this.rootPage != 'AuthPage') this.signOut();
+     // else if (this.rootPage != 'AuthPage') this.signOut();
     })
   }
 

@@ -11,21 +11,21 @@
   <ion-content padding-vertical>
     <ion-item no-lines>
       <button menuClose ion-item item-right (click)="goToMyNotes()">
-        <ion-label ion-text [color]="activePage=='DetailsPage'||activePage=='HomePage'?'primary':'gray'">My notes</ion-label>
+        <ion-label ion-text [color]="rootPage=='HomePage'?'primary':'gray'">My notes</ion-label>
       </button>
-      <ion-icon item-left [color]="activePage=='DetailsPage'||activePage=='HomePage'?'primary':'gray'" name='list-box'></ion-icon>
+      <ion-icon item-left [color]="rootPage=='HomePage'?'primary':'gray'" name='list-box'></ion-icon>
     </ion-item>
     <ion-item no-lines>
       <button menuClose ion-item item-right (click)="goToMySharedNotes()">
-        <ion-label ion-text [color]="activePage=='SharedPage'?'primary':'gray'">Shared with me</ion-label>
+        <ion-label ion-text [color]="rootPage=='SharedPage'?'primary':'gray'">Shared with me</ion-label>
       </button>
-      <ion-icon item-left [color]="activePage=='SharedPage'?'primary':'gray'" name='people'></ion-icon>
+      <ion-icon item-left [color]="rootPage=='SharedPage'?'primary':'gray'" name='people'></ion-icon>
     </ion-item>
     <ion-item>
       <button menuClose no-lines ion-item item-right (click)="goToShareMyNotes()">
-        <ion-label ion-text [color]="activePage=='ShareMyNotesPage'?'primary':'gray'">Share my notes</ion-label>
+        <ion-label ion-text [color]="rootPage=='ShareMyNotesPage'?'primary':'gray'">Share my notes</ion-label>
       </button>
-      <ion-icon item-left [color]="activePage=='ShareMyNotesPage'?'primary':'gray'" name='md-share'></ion-icon>
+      <ion-icon item-left [color]="rootPage=='ShareMyNotesPage'?'primary':'gray'" name='md-share'></ion-icon>
     </ion-item>
     <ion-item no-lines>
       <button menuClose ion-item item-right (click)="confirmSignOut()">

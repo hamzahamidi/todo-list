@@ -79,6 +79,7 @@ export class AuthProvider {
   }
 
   fireBaseSignOut(): Promise<any> {
+    firebase.database().goOffline();
     return this.afAuth.auth.signOut()
       .then(_ => {
         if (this.plt.is('ios') || this.plt.is('android')) {
