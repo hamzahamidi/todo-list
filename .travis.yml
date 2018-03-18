@@ -8,10 +8,12 @@ branches:
   - develop
   
 before_script:
-  - yarn global add ionic cordova
+  - yarn global add ionic@latest cordova
+  - ionic info
 
 script:
   - ionic config set -g yarn true
+  - yarn install
   - ionic cordova build browser --prod
 
 deploy:
