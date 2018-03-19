@@ -26,7 +26,7 @@ export class ItemDetailsPage {
   }
 
   ngOnInit() {
-    this._item = new Item('', false, '');
+    this._item = new Item();
     this._AddOrEdit = !!this.navParams.get('addOrEdit');
     this.todoList = this.navParams.get('todoList');
     if (!this._AddOrEdit) this._item = this.navParams.get('item');    

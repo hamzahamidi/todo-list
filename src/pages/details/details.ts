@@ -5,6 +5,7 @@ import { TodoList, Item, CustomAlert } from '../../models';
 // Providers
 import { TodoListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
+import { Subscription } from 'rxjs/Subscription';
 
 /**
  * Generated class for the DetailsPage page.
@@ -19,6 +20,7 @@ import { AlertProvider } from '../../shared';
   templateUrl: 'details.html',
 })
 export class DetailsPage {
+  subscriberTodoList$: Subscription;
   todoList: TodoList;
 
   constructor(private navParams: NavParams, private modalCtrl: ModalController,
@@ -30,7 +32,7 @@ export class DetailsPage {
   }
 
   getItem() {
-    this._TodoListProvider.getOneList(this.todoList.id).subscribe(todoList => {
+    this.subscriberTodoList$ = this._TodoListProvider.getOneList(this.todoList.id).subscribe(todoList => {
       this.todoList = todoList;
     });
   }
@@ -72,4 +74,7 @@ export class DetailsPage {
     this.alert.presentToast(message);
   }
 
+  ngOnDestroy() {
+    if (this.subscriberTodoList$) this.subscriberTodoList$.unsubscribe();
+  }
 }

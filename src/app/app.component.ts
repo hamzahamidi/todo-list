@@ -24,20 +24,17 @@ export class MyApp {
       this.statusBar.backgroundColorByHexString('#87173c');
       splashScreen.hide();
     });
-    app.viewDidLoad.subscribe(view => {
-      this.activePage = view.id;
-      console.log('activePage',this.activePage);
-      this.getUserData();
-    })
+    app.viewDidEnter.subscribe(view => this.getUserData());
   }
   getUserData() {
     this._AuthProvider.getUserData().then(user => {
       console.log('user from storage:', user);
+      console.log('rootPage:', this.rootPage);
       if (!!user) {
         this.user = JSON.parse(user);
         if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
       }
-      else this.signOut();
+     // else if (this.rootPage != 'AuthPage') this.signOut();
     })
   }
 
@@ -69,8 +66,8 @@ export class MyApp {
   }
   signOut(): Promise<any> {
     return this._AuthProvider.signOut()
-    .catch(err => console.log('error:', err))
     .then(_ => this.rootPage = 'AuthPage')
+    .catch(err => console.log('error:', err))
   }
   
   closeMenu(){
