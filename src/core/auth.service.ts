@@ -33,7 +33,7 @@ export class AuthProvider {
    */
   browserGoogleLogin(): Promise<User> {
     const provider = new firebase.auth.GoogleAuthProvider();
-    return this.oAuthLogin(provider).catch(_=> this.loading.dismiss());
+    return this.oAuthLogin(provider).catch(_ => this.loading.dismiss());
   }
   oAuthLogin(provider): Promise<User> {
     return this.afAuth.auth.signInWithPopup(provider)
@@ -46,7 +46,7 @@ export class AuthProvider {
     return this.googlePlus.login({
       'webClientId': '588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com'
     })
-      .then(provider => this.oAuthNativeLogin(provider)).catch(_=> this.loading.dismiss());
+      .then(provider => this.oAuthNativeLogin(provider)).catch(_ => this.loading.dismiss());
   }
 
   oAuthNativeLogin(provider): Promise<User> {
@@ -57,7 +57,6 @@ export class AuthProvider {
 
   updateUserData(credential): Promise<User> {
     //console.log('credential:', credential);
-    firebase.database().goOnline();
     let user: User = {
       uid: credential.user.uid,
       email: credential.user.email,
@@ -83,7 +82,6 @@ export class AuthProvider {
   }
 
   fireBaseSignOut(): Promise<any> {
-    firebase.database().goOffline();
     return this.afAuth.auth.signOut()
       .then(_ => {
         if (this.plt.is('ios') || this.plt.is('android')) {

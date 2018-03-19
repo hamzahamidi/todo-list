@@ -3,6 +3,7 @@ import { NavController, IonicPage } from 'ionic-angular';
 import { TodoList, CustomAlert } from '../../models';
 import { TodoListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
+import { Subscription } from 'rxjs/Subscription';
 
 @IonicPage()
 @Component({
@@ -10,6 +11,7 @@ import { AlertProvider } from '../../shared';
   templateUrl: 'home.html'
 })
 export class HomePage {
+  subscriberTodoList$: Subscription;
   todoLists: TodoList[];
   _showHideSearchBar: boolean = true;
   _emptyTodoList: boolean = true;
@@ -25,14 +27,15 @@ export class HomePage {
 
   getList() {
     this._TodoListProvider.getTodoList().then(observableTodoList => {
-      observableTodoList.subscribe(todoLists => {
-        this._showSpinner = false;
-        this._emptyTodoList = todoLists.length < 1;
-        this.todoLists = todoLists;
-        //console.log('todolist', this.todoLists);
-        //console.log('_emptyTodoList', this._emptyTodoList);
-        //console.log('showspinner', this._showSpinner);
-      })
+      this.subscriberTodoList$ = observableTodoList
+        .subscribe(todoLists => {
+          this._showSpinner = false;
+          this._emptyTodoList = todoLists.length < 1;
+          this.todoLists = todoLists;
+          //console.log('todolist', this.todoLists);
+          //console.log('_emptyTodoList', this._emptyTodoList);
+          //console.log('showspinner', this._showSpinner);
+        })
     });
   }
 
@@ -101,5 +104,9 @@ export class HomePage {
     setTimeout(() => {
       refresher.complete();
     }, 2000);
+  }
+
+  ngOnDestroy() {
+    this.subscriberTodoList$.unsubscribe();
   }
 }
