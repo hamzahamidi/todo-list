@@ -31,6 +31,7 @@ export class TodoListProvider {
     // FB creates ID automatically. We just retreive the ID.
     const todoListRef$ = this.todoLists.push(<TodoList>{});
     todoList.id = todoListRef$.key;
+    todoList.date = Date.now();
     return todoListRef$.set(todoList);
   }
 

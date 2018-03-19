@@ -1,7 +1,8 @@
 export class TodoList {
     id?: string;
     name: string;
-    items: Set<Item>
+    items: Set<Item>;
+    date?: number;
 }
 
 export class Item {
