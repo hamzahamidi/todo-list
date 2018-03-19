@@ -15,10 +15,10 @@ export class DateCreatedPipe implements PipeTransform {
   transform(dateCreated: number, ...args) {
     if (!dateCreated) return '';
     const diff: number = Date.now() - dateCreated;
-    if (diff > 7 * 24 * 3600 * 1000) return new Date(dateCreated).toDateString();
-    else if (diff > 24 * 3600 * 1000) return Math.round(diff / (24 * 3600 * 1000)).toString() + " days ago";
-    else if (diff > 3600 * 1000) return Math.round(diff / (3600 * 1000)).toString() + " hours ago";
-    else if (diff > 60 * 1000) return Math.round(diff / (60 * 1000)).toString() + " minutes ago";
-    else if (diff > 1000) return Math.round(diff / (1000)).toString() + " seconds ago";
+    return diff > 7 * 24 * 3600 * 1000 ? new Date(dateCreated).toDateString() : diff > 24 * 3600 * 1000 ?
+      `${Math.round(diff / (24 * 3600 * 1000)).toString()} days ago` : diff > 3600 * 1000 ?
+       `${Math.round(diff / (3600 * 1000)).toString()} hours ago` : diff > 60 * 1000 ?
+          `${Math.round(diff / (60 * 1000)).toString()} minutes ago` : diff > 1000 ?
+            `${Math.round(diff / (1000)).toString()} seconds ago ` : ' one second ago';
   }
 }
