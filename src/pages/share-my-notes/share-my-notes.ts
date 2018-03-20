@@ -19,13 +19,13 @@ import { User } from '../../models';
 export class ShareMyNotesPage {
   _showHideSearchBar: boolean = true;
   keyWord: string;
-  segmentValue: string;
+  selection: string;
   @ViewChild('qrimage') qrImage: ElementRef;
 
   constructor(private _AuthProvider: AuthProvider) { }
 
-  ionViewWillEnter() {
-    this.segmentValue = 'shared-users';
+  ngOnInit() {
+    this.selection = 'qr-scanner';
   }
 
   ngAfterViewInit() {

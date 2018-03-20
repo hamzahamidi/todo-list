@@ -150,6 +150,10 @@
   version "4.5.3"
   resolved "https://registry.yarnpkg.com/@ionic-native/google-plus/-/google-plus-4.5.3.tgz#c129f69016ec70da0e0718b52bed541aeef57baf"
 
+"@ionic-native/qr-scanner@^4.5.3":
+  version "4.5.3"
+  resolved "https://registry.yarnpkg.com/@ionic-native/qr-scanner/-/qr-scanner-4.5.3.tgz#1ed185a3fb0867e225b51f0f15c6fc464d11f2bd"
+
 "@ionic-native/splash-screen@4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@ionic-native/splash-screen/-/splash-screen-4.4.0.tgz#81ed723d7fd3f0d643072b5461fa0c32dcc330b1"
@@ -888,6 +892,10 @@ cordova-common@^2.1.1, cordova-common@^2.2.0:
     underscore "^1.8.3"
     unorm "^1.3.3"
 
+cordova-plugin-compat@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-compat/-/cordova-plugin-compat-1.2.0.tgz#0bc65757276ebd920c012ce920e274177576373e"
+
 cordova-plugin-device@^1.1.7:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/cordova-plugin-device/-/cordova-plugin-device-1.1.7.tgz#fc94111be6932628c66868938ddf3dc82c9fbfe6"
@@ -899,6 +907,13 @@ cordova-plugin-googleplus@^5.2.1:
 cordova-plugin-ionic-webview@^1.1.16:
   version "1.1.16"
   resolved "https://registry.yarnpkg.com/cordova-plugin-ionic-webview/-/cordova-plugin-ionic-webview-1.1.16.tgz#92d5f2e4a5a829f91b487b1761848765a31c9f1e"
+
+cordova-plugin-qrscanner@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-qrscanner/-/cordova-plugin-qrscanner-2.5.0.tgz#6d6ba13d0bb49e370daa4958d77c8aa76d8ca356"
+  dependencies:
+    qrcode-reader "^0.2.2"
+    webrtc-adapter "^3.1.4"
 
 cordova-plugin-splashscreen@^4.1.0:
   version "4.1.0"
@@ -2850,6 +2865,10 @@ q@^1.4.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
 
+qrcode-reader@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/qrcode-reader/-/qrcode-reader-0.2.2.tgz#1f202f2461d0eeed85e8794a6f44fe418dda7f87"
+
 qrcode@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.2.0.tgz#330d24313fbf8d429a806091af9525250239e44a"
@@ -3187,6 +3206,10 @@ scss-tokenizer@^0.2.3:
   dependencies:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
+
+sdp@^1.5.0:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/sdp/-/sdp-1.5.4.tgz#8e038f6ddb14bd765ae1f4b5216e12094511e0d0"
 
 "semver@2 || 3 || 4 || 5", semver@^5.0.1, semver@^5.3.0, semver@^5.4.1:
   version "5.5.0"
@@ -3806,6 +3829,12 @@ webpack@3.8.1:
     watchpack "^1.4.0"
     webpack-sources "^1.0.1"
     yargs "^8.0.2"
+
+webrtc-adapter@^3.1.4:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-3.4.3.tgz#b636062eee9a6ef158acd0d8501b678434b56f16"
+  dependencies:
+    sdp "^1.5.0"
 
 websocket-driver@>=0.5.1:
   version "0.7.0"

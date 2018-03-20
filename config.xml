@@ -88,4 +88,5 @@
     <engine name="browser" spec="5.0.3" />
     <plugin name="cordova-plugin-headercolor" spec="^1.0.0" />
     <plugin name="cordova-plugin-statusbar" spec="~2.4.1" />
+    <plugin name="cordova-plugin-qrscanner" spec="^2.5.0" />
 </widget>

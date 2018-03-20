@@ -21,6 +21,7 @@ export class MyApp {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       this.statusBar.styleLightContent();
+      this.statusBar.overlaysWebView(false);
       this.statusBar.backgroundColorByHexString('#87173c');
       splashScreen.hide();
     });
@@ -34,24 +35,24 @@ export class MyApp {
         this.user = JSON.parse(user);
         if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
       }
-     // else if (this.rootPage != 'AuthPage') this.signOut();
+      else if (this.rootPage != 'AuthPage') this.signOut();
     })
   }
 
   goToMyNotes() {
     this.rootPage = 'HomePage';
   }
-  
-  
-  goToMySharedNotes() {
 
+
+  goToMySharedNotes() {
+    this.rootPage = 'SharedWithMePage';
   }
-  
+
   goToShareMyNotes() {
     this.rootPage = 'ShareMyNotesPage'
   }
 
-  confirmSignOut(){
+  confirmSignOut() {
     const alert: CustomAlert = {
       title: 'Are you sure you want to sign out?',
       message: "You may loose all cached notes!",
@@ -65,17 +66,18 @@ export class MyApp {
     this.alert.createAlert(alert);
   }
   signOut(): Promise<any> {
-    return this._AuthProvider.signOut()
-    .then(_ => this.rootPage = 'AuthPage')
-    .catch(err => console.log('error:', err))
+    const promise = this._AuthProvider.signOut();
+    this.rootPage = 'AuthPage';
+    return promise
+      .catch(err => console.log('error:', err))
   }
-  
-  closeMenu(){
+
+  closeMenu() {
     this.statusBar.overlaysWebView(false);
     this.statusBar.backgroundColorByHexString('#87173c');
   }
-  
-  dragMenu(){
+
+  dragMenu() {
     this.statusBar.overlaysWebView(true);
   }
 }
