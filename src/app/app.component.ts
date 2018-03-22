@@ -20,9 +20,9 @@ export class MyApp {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      this.statusBar.styleLightContent();
-      this.statusBar.overlaysWebView(false);
-      this.statusBar.backgroundColorByHexString('#87173c');
+      //this.statusBar.styleLightContent();
+      //this.statusBar.overlaysWebView(false);
+      this.statusBar.backgroundColorByHexString('#33000000');
       splashScreen.hide();
     });
     app.viewDidEnter.subscribe(view => this.getUserData());
@@ -73,11 +73,11 @@ export class MyApp {
   }
 
   closeMenu() {
-    this.statusBar.overlaysWebView(false);
-    this.statusBar.backgroundColorByHexString('#87173c');
+    // this.statusBar.overlaysWebView(false);
+    // this.statusBar.backgroundColorByHexString('#87173c');
   }
 
   dragMenu() {
-    this.statusBar.overlaysWebView(true);
+    //this.statusBar.overlaysWebView(true);
   }
 }
