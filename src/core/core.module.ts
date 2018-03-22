@@ -8,7 +8,7 @@ import { AngularFirestoreModule } from 'angularfire2/firestore';
 
 // Providers
 import { GooglePlus } from '@ionic-native/google-plus';
-import { AuthProvider, TodoListProvider } from './';
+import { AuthProvider, TodoListProvider, ShareListProvider } from './';
 
 // Import the AngularFire2 Module
 import { AngularFireModule } from 'angularfire2';
@@ -36,6 +36,6 @@ import { IonicStorageModule } from '@ionic/storage';
     AngularFirestoreModule,
     IonicStorageModule.forRoot()
   ],
-  providers: [GooglePlus, AuthProvider, TodoListProvider]
+  providers: [GooglePlus, AuthProvider, TodoListProvider, ShareListProvider]
 })
 export class CoreModule { }

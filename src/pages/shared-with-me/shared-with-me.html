@@ -8,25 +8,32 @@
   <nav-bar title="Shared With Me" (onClickSearch)="_showHideSearchBar=!_showHideSearchBar"></nav-bar>
 </ion-header>
 
-<ion-content padding>
-  <ion-segment [hidden]="_transparentBackGroundColor" [(ngModel)]="selection">
-    <ion-segment-button  value="shared-users">
-      Shared with me
-      <ion-icon name="contacts"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button  value="qr-scanner">
-      Add New List
-      <ion-icon name="qr-scanner"></ion-icon>
-    </ion-segment-button>
-  </ion-segment>
-  <div [hidden]="selection!='shared-users'">
-    <ion-searchbar [hidden]="_showHideSearchBar" [(ngModel)]="users">
+<ion-content padding-top>
+  <div [hidden]="_transparentBackGroundColor">
+    <ion-searchbar [hidden]="!_showHideSearchBar" [(ngModel)]="users">
     </ion-searchbar>
-  </div>
-  <div [hidden]="selection!='qr-scanner'">
+    <ion-list>
+      <ion-item-divider>
+        Users who share with me
+      </ion-item-divider>
+      <div *ngFor="let userObser of userObservables">
+        <ion-item *ngIf="userObser | async as user">
+          <button ion-item no-lines (click)="goToLists(user)">
+            <ion-avatar item-start>
+              <img src="{{user.photoURL}}" alt="avatar">
+            </ion-avatar>
+            <h2>{{user.displayName}}</h2>
+            <h3>{{user.email}}</h3>
+          </button>
+          <button ion-button clear icon-only large color="gray" item-end (click)="openOptions($event, user)">
+            <ion-icon name="more"></ion-icon>
+          </button>
+        </ion-item>
+      </div>
+    </ion-list>
   </div>
 </ion-content>
 <ion-footer text-center>
-    <button *ngIf="!_transparentBackGroundColor" text-center ion-button round (click)="scanQR()">Scan QR code</button>
-    <button *ngIf="_transparentBackGroundColor" text-center ion-button round color="danger" (click)="cancelScan()">Cancel</button>
+  <button *ngIf="!_transparentBackGroundColor" text-center ion-button round (click)="scanQR()">Scan QR code</button>
+  <button *ngIf="_transparentBackGroundColor" text-center ion-button round color="danger" (click)="cancelScan()">Cancel</button>
 </ion-footer>

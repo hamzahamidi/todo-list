@@ -26,6 +26,11 @@ export class TodoListProvider {
       return this.todoLists.valueChanges();
     })
   }
+  getSharedWithMeTodoList(user: User): Observable<TodoList[]> {
+      this.baseUrl = `/users/${user.uid}/todo-lists`;
+      this.todoLists = this.db.list(this.baseUrl);
+      return this.todoLists.valueChanges();
+  }
 
   addList(todoList): Promise<void> {
     // FB creates ID automatically. We just retreive the ID.

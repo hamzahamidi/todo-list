@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, IonicPage } from 'ionic-angular';
-import { TodoList, CustomAlert } from '../../models';
+import { NavController, IonicPage, NavParams } from 'ionic-angular';
+import { TodoList, CustomAlert, User } from '../../models';
 import { TodoListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 @IonicPage()
 @Component({
@@ -13,30 +14,38 @@ import { Subscription } from 'rxjs/Subscription';
 export class HomePage {
   subscriberTodoList$: Subscription;
   todoLists: TodoList[];
+  titlePage: string = 'My Notes';
   _showHideSearchBar: boolean = true;
   _emptyTodoList: boolean = true;
   _showSpinner: boolean = true;
-  constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider,
+  constructor(private navCtrl: NavController, private nav: NavParams, private _TodoListProvider: TodoListProvider,
     private alert: AlertProvider) {
 
   }
 
   ngOnInit() {
-    this.getList();
+    const sharedwithMeUser: User = this.nav.get('sharedwithMeUser');
+    if (!!sharedwithMeUser) {
+      console.log('shared', sharedwithMeUser);
+      this.titlePage = `${sharedwithMeUser.displayName} Shared Lists`;
+      this.populateLists(this._TodoListProvider.getSharedWithMeTodoList(sharedwithMeUser));
+    }
+    else this.getList();
   }
 
   getList() {
     this._TodoListProvider.getTodoList().then(observableTodoList => {
-      this.subscriberTodoList$ = observableTodoList
-        .subscribe(todoLists => {
-          this._showSpinner = false;
-          this._emptyTodoList = todoLists.length < 1;
-          this.todoLists = todoLists;
-          //console.log('todolist', this.todoLists);
-          //console.log('_emptyTodoList', this._emptyTodoList);
-          //console.log('showspinner', this._showSpinner);
-        })
+      this.populateLists(observableTodoList);
     });
+  }
+
+  private populateLists(observableTodoList: Observable<TodoList[]>) {
+    this.subscriberTodoList$ = observableTodoList
+      .subscribe(todoLists => {
+        this._showSpinner = false;
+        this._emptyTodoList = todoLists.length < 1;
+        this.todoLists = todoLists;
+      });
   }
 
   addList() {

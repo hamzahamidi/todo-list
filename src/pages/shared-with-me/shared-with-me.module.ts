@@ -3,6 +3,7 @@ import { IonicPageModule } from 'ionic-angular';
 import { SharedWithMePage } from './shared-with-me';
 import { QRScanner } from '@ionic-native/qr-scanner';
 import { SharedModule } from '../../shared';
+import { PipesModule } from '../../pipes';
 
 @NgModule({
   declarations: [
@@ -10,7 +11,8 @@ import { SharedModule } from '../../shared';
   ],
   imports: [
     IonicPageModule.forChild(SharedWithMePage),
-    SharedModule
+    SharedModule,
+    PipesModule
   ],
   providers:[
     QRScanner
