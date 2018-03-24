@@ -24,6 +24,8 @@
   <div [hidden]="selection!='shared-users'">
     <ion-searchbar [hidden]="_showHideSearchBar" [(ngModel)]="users">
     </ion-searchbar>
+    <empty-list icon="ios-people" h3Text="There is currently No User" 
+   h3Textsecond= "you share with"></empty-list>
   </div>
   <div [hidden]="selection!='qr-scanner'">
     <ion-item no-lines>

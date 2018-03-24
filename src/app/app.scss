@@ -12,7 +12,6 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
-
 // ADD PADDING TOP TO PLATFORM ANDROID
 .toolbar-md {
   padding-top: 22px;
@@ -38,6 +37,10 @@
 
 ion-card>ion-card-content>div>ion-list>ion-item {
   border-bottom: 1px solid lightgray !important;
+}
+
+.list-md ion-item-sliding {
+  border-bottom: 1px solid lightgray;
 }
 
 .navigation-drawer {

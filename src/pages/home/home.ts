@@ -18,6 +18,7 @@ export class HomePage {
   _showHideSearchBar: boolean = true;
   _emptyTodoList: boolean = true;
   _showSpinner: boolean = true;
+  _cardOrList: boolean;
   constructor(private navCtrl: NavController, private nav: NavParams, private _TodoListProvider: TodoListProvider,
     private alert: AlertProvider) {
 
@@ -99,15 +100,15 @@ export class HomePage {
     this.alert.createAlert(alert);
   }
 
-  presentToast(message: string) {
+  presentToast(message: string): void {
     this.alert.presentToast(message);
   }
 
-  goToDetails(todoLists) {
+  goToDetails(todoLists): void {
     this.navCtrl.push('DetailsPage', { details: todoLists });
   }
 
-  refreshLists(refresher) {
+  refreshLists(refresher): void {
     //this.todoLists$ = Observable.of(null);
     this.getList();
     setTimeout(() => {
@@ -115,7 +116,7 @@ export class HomePage {
     }, 2000);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriberTodoList$.unsubscribe();
   }
 }

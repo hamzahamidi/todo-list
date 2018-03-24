@@ -15,6 +15,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
         </button>
   <ion-title>{{title}}</ion-title>
   <ion-buttons end>
+      <button *ngIf="enabledChangeDisplay" [hidden]="!cardOrList" ion-button icon-only (click)="changeDisplay()">
+        <ion-icon name="list"></ion-icon>
+      </button>
+      <button *ngIf="enabledChangeDisplay" [hidden]="cardOrList" ion-button icon-only (click)="changeDisplay()">
+        <ion-icon name="grid"></ion-icon>
+      </button>
       <button ion-button icon-only (click)="clickSearch()">
         <ion-icon name="search"></ion-icon>
       </button>
@@ -24,12 +30,17 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class NavBarComponent {
 
   @Input() title: string;
+  @Input() enabledChangeDisplay: boolean;
+  @Input() cardOrList: boolean;
   @Output() onClickSearch = new EventEmitter<void>();
+  @Output() onChangeDisplay = new EventEmitter<void>();
 
-  constructor() { }
-
-  clickSearch(){
+  clickSearch() {
     this.onClickSearch.emit();
   }
 
+  changeDisplay() {
+    this.cardOrList = !this.cardOrList;
+    this.onChangeDisplay.emit();
+  }
 }
