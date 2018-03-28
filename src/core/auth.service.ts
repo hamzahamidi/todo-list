@@ -67,7 +67,7 @@ export class AuthProvider {
     // Check if new user
     if (credential.additionalUserInfo.isNewUser) {
       // Sets user data to firebase on login
-      this.db.list(`/users/`).set(user.uid, user);
+      this.db.list(`/users/${user.uid}`).set('profile', user);
     }
     this.loading.dismiss();
     return this.storage.set('user', JSON.stringify(user));

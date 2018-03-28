@@ -100,6 +100,10 @@ export class HomePage {
     this.alert.createAlert(alert);
   }
 
+  shareList(todoList: TodoList) {
+    this.navCtrl.push('ShareMyNotesPage', { sharedList: todoList });
+  }
+
   presentToast(message: string): void {
     this.alert.presentToast(message);
   }

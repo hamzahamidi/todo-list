@@ -1,8 +1,10 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { IonicPage } from 'ionic-angular';
+import { IonicPage, NavParams } from 'ionic-angular';
 import QRCode from 'qrcode'
-import { AuthProvider } from '../../core';
-import { User } from '../../models';
+import { AuthProvider, ShareListProvider } from '../../core';
+import { User, TodoList } from '../../models';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 /**
  * Generated class for the ShareMyNotesPage page.
@@ -17,15 +19,33 @@ import { User } from '../../models';
   templateUrl: 'share-my-notes.html',
 })
 export class ShareMyNotesPage {
+  userObservables: Observable<User>[] =[];
+  uidsSubscription$: Subscription;
   _showHideSearchBar: boolean = true;
+  _hideSegment: boolean = true;
+  sharedList: TodoList = {};
   keyWord: string;
-  selection: string;
+  selection: string ='shared-users';
   @ViewChild('qrimage') qrImage: ElementRef;
 
-  constructor(private _AuthProvider: AuthProvider) { }
+  constructor(private _AuthProvider: AuthProvider, private nav: NavParams,
+     private _ShareListProvider: ShareListProvider) { }
 
   ngOnInit() {
-    this.selection = 'qr-scanner';
+    const list: TodoList = this.nav.get('sharedList');
+    if (!!list) {
+      this.sharedList.id = list.id;
+      this.sharedList.write = true;
+      this.sharedList.read = true;
+      this._hideSegment = false;
+      this.selection = 'qr-scanner';
+    }
+    this._ShareListProvider.getUidsIShareWith()
+    .then(uidObservable => this.uidsSubscription$ = uidObservable
+      .map(uids => uids
+        .map(uid => this._ShareListProvider
+          .getSharedUserData(uid)))
+      .subscribe(observables => this.userObservables = observables));
   }
 
   ngAfterViewInit() {
@@ -35,11 +55,20 @@ export class ShareMyNotesPage {
     };
     this._AuthProvider.getUserData().then((_user: string) => {
       const user: User = JSON.parse(_user);
-      QRCode.toCanvas(this.qrImage.nativeElement, user.uid, options, error => {
+      const sharedData: string = JSON.stringify({
+        uid: user.uid,
+        todoList: this.sharedList,
+      });
+      console.log('data',JSON.parse(sharedData));
+      
+      QRCode.toCanvas(this.qrImage.nativeElement, sharedData, options, error => {
         if (error) console.error(error);
       })
     }
     )
   }
 
+  ngOnDestroy() {
+    if (this.uidsSubscription$) this.uidsSubscription$.unsubscribe();
+  }
 }

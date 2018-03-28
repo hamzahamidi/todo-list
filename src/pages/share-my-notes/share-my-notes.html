@@ -9,8 +9,8 @@
 </ion-header>
 
 
-<ion-content padding>
-  <ion-segment [(ngModel)]="selection">
+<ion-content padding-top>
+  <ion-segment [hidden]="_hideSegment" [(ngModel)]="selection">
     <ion-segment-button value="shared-users">
       Users I shared with
       <ion-icon name="contacts"></ion-icon>
@@ -20,18 +20,40 @@
       <ion-icon name="qr-scanner"></ion-icon>
     </ion-segment-button>
   </ion-segment>
-  <ion-item-divider no-lines></ion-item-divider>
   <div [hidden]="selection!='shared-users'">
     <ion-searchbar [hidden]="_showHideSearchBar" [(ngModel)]="users">
     </ion-searchbar>
-    <empty-list icon="ios-people" h3Text="There is currently No User" 
-   h3Textsecond= "you share with"></empty-list>
+    <ion-list>
+      <ion-item-divider [hidden]="!_hideSegment">
+        Users I share with
+      </ion-item-divider>
+      <ng-template #emptyList>
+        <empty-list icon="ios-people" h3Text="There is currently No User" h3Textsecond="I share with"></empty-list>
+      </ng-template>
+      <ng-container *ngIf="userObservables.length > 0; else emptyList">
+        <div *ngFor="let userObser of userObservables">
+          <ion-item #emptylist *ngIf="userObser | async as user">
+            <button ion-item no-lines (click)="goToLists(user)">
+              <ion-avatar item-start>
+                <img src="{{user.photoURL}}" alt="avatar">
+              </ion-avatar>
+              <h2>{{user.displayName}}</h2>
+              <h3>{{user.email}}</h3>
+            </button>
+            <button ion-button clear icon-only large color="gray" item-end (click)="openOptions($event, user)">
+              <ion-icon name="more"></ion-icon>
+            </button>
+          </ion-item>
+        </div>
+      </ng-container>
+    </ion-list>
   </div>
   <div [hidden]="selection!='qr-scanner'">
+    <ion-item-divider no-lines></ion-item-divider>
     <ion-item no-lines>
       <ion-label ion-text text-center color="secondary"> Show this QR Code to share your list</ion-label>
     </ion-item>
     <canvas id="qr-image" #qrimage></canvas>
   </div>
-  
+
 </ion-content>

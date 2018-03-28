@@ -1,8 +1,10 @@
 export class TodoList {
     id?: string;
-    name: string;
-    items: Set<Item>;
+    name?: string;
+    items?: Set<Item>;
     date?: number;
+    read?: boolean;
+    write?: boolean;
 }
 
 export class Item {

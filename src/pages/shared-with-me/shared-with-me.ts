@@ -22,8 +22,6 @@ import { AlertProvider } from '../../shared';
 export class SharedWithMePage {
   test: Set<Observable<User>>;
   userObservables: Observable<User>[] = [];
-  userObservable: Observable<User>;
-  usersUID: Observable<string[]>;
   uidsSubscription$: Subscription;
   scanSub$: Subscription;
   _showHideSearchBar: boolean;
@@ -34,27 +32,25 @@ export class SharedWithMePage {
   }
 
   ngOnInit() {
-    /*this._ShareListProvider.getUidsSharedWithMe()
-      .then(uidObservable => this.uidsSubscription$ = uidObservable
-        .map(uids => new Set(uids))
-        .subscribe((uidsSet: Set<string>) => {
-          console.log('uidsSet', uidsSet);
-          this.userObservables = [];
-          uidsSet.forEach(uid => {
-            console.log('usershared with me', uid);
-            this.userObservables.push(this._ShareListProvider.getSharedUserData(uid));
-            console.log('usershared set with me', this.userObservables);
-          });
-        }))
-        */
     this._ShareListProvider.getUidsSharedWithMe()
       .then(uidObservable => this.uidsSubscription$ = uidObservable
-        .map(uids => Array.from(new Set(uids)))
-        .map(uidsNoduplicate => uidsNoduplicate
+        .map(uids => uids
           .map(uid => this._ShareListProvider
             .getSharedUserData(uid)))
         .subscribe(observables => this.userObservables = observables));
 
+   /*const sharedData = {
+      uid: "kFaV4ktvVEfpS3RBIK6YLhrRR8y2",
+      todoList:
+        {
+          id: "-L8c7yVp6LJ_6g_2M_fa",
+          read: true,
+          write: true
+        }
+    };
+   this._ShareListProvider.addSharedWithMe(sharedData)
+              .then(_ => this.alert.presentToast('Shared List succefully added'))
+              .catch(err => this.alert.presentToast(`Invalid QR ${err}`));*/
   }
 
   scanQR() {
@@ -62,14 +58,15 @@ export class SharedWithMePage {
     this.qrScanner.prepare()
       .then((status: QRScannerStatus) => {
         if (status.authorized) {
-          this.scanSub$ = this.qrScanner.scan().subscribe((uid: string) => {
-            console.log('Scanned', uid);
+          this.scanSub$ = this.qrScanner.scan().subscribe(data => {
+            console.log('Scanned', data);
+            const dataJson = JSON.parse(data);
             this.qrScanner.hide(); // hide camera preview
             this.changebackGroundColor(false);
             this.scanSub$.unsubscribe(); // stop scanning
-            this._ShareListProvider.addSharedWithMe(uid)
-                .then(_=> this.alert.presentToast('Shared List succefully added'))
-                .catch(err => this.alert.presentToast(`Invalid QR ${err}`));
+            this._ShareListProvider.addSharedWithMe(dataJson)
+              .then(_ => this.alert.presentToast('Shared List succefully added'))
+              .catch(err => this.alert.presentToast(`Invalid QR ${err}`));
           });
 
           this.qrScanner.resumePreview();
@@ -114,7 +111,7 @@ export class SharedWithMePage {
         name: 'Delete User',
         color: 'danger',
         iconName: 'trash',
-        action: _ => this._ShareListProvider.deleteUidSharedWithMe(user)
+        action: _ => this._ShareListProvider.deleteSharedWithMe(user)
       }
     ];
     const popover = this.popoverCtrl.create('ModalPage', { modalButtons: modalButtons })
