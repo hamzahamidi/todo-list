@@ -14,19 +14,19 @@
     <empty-list *ngIf="_emptyTodoList" icon="notifications" h1Text="OMG!" h3Text="You have no Lists." h3Textsecond="Let's change that!"></empty-list>
     <ion-card [hidden]="_cardOrList" *ngFor="let todoList of todoLists">
       <ion-card-header>
-        <h1 text-center ion-text color="primary">{{todoList.name}}</h1>
+        <h2 text-center ion-text color="primary">{{todoList.name}}</h2>
       </ion-card-header>
       <ion-card-content (click)="goToDetails(todoList)">
         <h5>
           List Summary
         </h5>
         <div *ngIf="!todoList.items" padding>
-          <h2 ion-text text-center color="gray">
+          <h3 ion-text text-center color="gray">
             <i>
               Click on
               <span ion-text color="warning">the list</span> to Add your first Task
             </i>
-          </h2>
+          </h3>
         </div>
         <div *ngIf="!!todoList.items" padding>
           <ion-list>
@@ -68,11 +68,11 @@
           <ion-avatar item-start>
             <img src="https://ui-avatars.com/api/?name={{todoList.name}}&length=1&background=E91E63">
           </ion-avatar>
-          <ion-row>
-            <ion-col>
-              <h2>{{todoList.name}}</h2>
+          <ion-row wrap justify-content-start>
+            <ion-col col-10>
+              <h2><b>{{todoList.name}}</b></h2>
             </ion-col>
-            <ion-col align-self-center text-end>
+            <ion-col text-wrap>
               <ion-note>
                 Created {{todoList.date | dateCreated}}
               </ion-note>

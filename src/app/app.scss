@@ -18,6 +18,18 @@
   min-height: 74px;
 }
 
+@media only screen and (max-width: 520px) {
+  h2 {
+    white-space: nowrap!important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+h2 {
+  white-space: normal;
+}
+
 .strike {
   text-decoration: line-through;
 }
