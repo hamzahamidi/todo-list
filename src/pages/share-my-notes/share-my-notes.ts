@@ -2,9 +2,10 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage, NavParams } from 'ionic-angular';
 import QRCode from 'qrcode'
 import { AuthProvider, ShareListProvider } from '../../core';
-import { User, TodoList } from '../../models';
+import { User, TodoList, CustomAlert } from '../../models';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { AlertProvider } from '../../shared';
 
 /**
  * Generated class for the ShareMyNotesPage page.
@@ -19,17 +20,17 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: 'share-my-notes.html',
 })
 export class ShareMyNotesPage {
-  userObservables: Observable<User>[] =[];
+  userObservables: Observable<User>[];
   uidsSubscription$: Subscription;
   _showHideSearchBar: boolean = true;
   _hideSegment: boolean = true;
   sharedList: TodoList = {};
   keyWord: string;
-  selection: string ='shared-users';
+  selection: string = 'shared-users';
   @ViewChild('qrimage') qrImage: ElementRef;
 
   constructor(private _AuthProvider: AuthProvider, private nav: NavParams,
-     private _ShareListProvider: ShareListProvider) { }
+    private _ShareListProvider: ShareListProvider, private alert: AlertProvider) { }
 
   ngOnInit() {
     const list: TodoList = this.nav.get('sharedList');
@@ -41,11 +42,11 @@ export class ShareMyNotesPage {
       this.selection = 'qr-scanner';
     }
     this._ShareListProvider.getUidsIShareWith()
-    .then(uidObservable => this.uidsSubscription$ = uidObservable
-      .map(uids => uids
-        .map(uid => this._ShareListProvider
-          .getSharedUserData(uid)))
-      .subscribe(observables => this.userObservables = observables));
+      .then(uidObservable => this.uidsSubscription$ = uidObservable
+        .map(uids => uids
+          .map(uid => this._ShareListProvider
+            .getSharedUserData(uid)))
+        .subscribe(observables => this.userObservables = observables));
   }
 
   ngAfterViewInit() {
@@ -59,8 +60,8 @@ export class ShareMyNotesPage {
         uid: user.uid,
         todoList: this.sharedList,
       });
-      console.log('data',JSON.parse(sharedData));
-      
+      console.log('data', JSON.parse(sharedData));
+
       QRCode.toCanvas(this.qrImage.nativeElement, sharedData, options, error => {
         if (error) console.error(error);
       })
@@ -68,7 +69,23 @@ export class ShareMyNotesPage {
     )
   }
 
+  deleteUser(user: User) {
+    console.log('user', user);
+    const alert: CustomAlert = {
+      title: 'Delete List',
+      message: `Are you sure you want to stop sharing with ${user.displayName}?`,
+      inputs: [],
+      noText: 'Cancel',
+      yesText: 'Yes',
+      yesToastThen: 'Shared User deleted',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (_ => this._ShareListProvider.deleteSharedUser(user, false))
+    }
+    this.alert.createAlert(alert);
+  }
+
   ngOnDestroy() {
     if (this.uidsSubscription$) this.uidsSubscription$.unsubscribe();
   }
+
 }

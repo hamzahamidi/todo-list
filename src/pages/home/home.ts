@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, IonicPage, NavParams } from 'ionic-angular';
 import { TodoList, CustomAlert, User } from '../../models';
-import { TodoListProvider } from '../../core';
+import { TodoListProvider, ShareListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -12,6 +12,8 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: 'home.html'
 })
 export class HomePage {
+  test: Observable<TodoList[]>;
+  subscriberTodoListId$: Subscription;
   subscriberTodoList$: Subscription;
   todoLists: TodoList[];
   titlePage: string = 'My Notes';
@@ -19,19 +21,24 @@ export class HomePage {
   _emptyTodoList: boolean = true;
   _showSpinner: boolean = true;
   _cardOrList: boolean;
+  _hideAddButton: boolean;
   constructor(private navCtrl: NavController, private nav: NavParams, private _TodoListProvider: TodoListProvider,
-    private alert: AlertProvider) {
+    private alert: AlertProvider, private _ShareListProvider: ShareListProvider) {
 
   }
 
   ngOnInit() {
     const sharedwithMeUser: User = this.nav.get('sharedwithMeUser');
     if (!!sharedwithMeUser) {
-      console.log('shared', sharedwithMeUser);
+      this._hideAddButton = true;
       this.titlePage = `${sharedwithMeUser.displayName} Shared Lists`;
-      this.populateLists(this._TodoListProvider.getSharedWithMeTodoList(sharedwithMeUser));
-    }
-    else this.getList();
+      this._ShareListProvider.getIdListsShared(sharedwithMeUser.uid)
+        .then(todoListIdsObservable$ => this.subscriberTodoListId$ = todoListIdsObservable$
+          .subscribe(ids => this.populateLists(this._TodoListProvider
+            .getArrayList(sharedwithMeUser, ids))
+          )
+        )
+    } else this.getList();
   }
 
   getList() {
@@ -121,6 +128,7 @@ export class HomePage {
   }
 
   ngOnDestroy(): void {
-    this.subscriberTodoList$.unsubscribe();
+    if (this.subscriberTodoList$) this.subscriberTodoList$.unsubscribe();
+    if (this.subscriberTodoListId$) this.subscriberTodoListId$.unsubscribe();
   }
 }

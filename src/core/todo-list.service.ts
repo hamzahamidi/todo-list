@@ -4,6 +4,8 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 import { Storage } from '@ionic/storage';
+import { combineLatest } from 'rxjs/observable/combineLatest';
+
 
 /*
   Generated class for the TodoListProvider provider.
@@ -25,11 +27,6 @@ export class TodoListProvider {
       this.todoLists = this.db.list(this.baseUrl);
       return this.todoLists.valueChanges();
     })
-  }
-  getSharedWithMeTodoList(user: User): Observable<TodoList[]> {
-      this.baseUrl = `/users/${user.uid}/todo-lists`;
-      this.todoLists = this.db.list(this.baseUrl);
-      return this.todoLists.valueChanges();
   }
 
   addList(todoList): Promise<void> {
@@ -55,8 +52,15 @@ export class TodoListProvider {
     return list.valueChanges();
   }
 
-  // items
+  getArrayList(user: User, listId: string[]): Observable<TodoList[]> {
+    const arrayObservablesList = [];
+    this.baseUrl = `/users/${user.uid}/todo-lists`;
+    this.todoLists = this.db.list(this.baseUrl);
+    listId.forEach(id => arrayObservablesList.push(this.db.object(`${this.baseUrl}/${id}`).valueChanges()));
+    return combineLatest(arrayObservablesList);
+  }
 
+  // items
   addItem(todoList: TodoList, item: Item): Promise<void> {
     const itemRef$ = this.buildAngularFireListOfItems(todoList).push(<Item>{});
     item.id = itemRef$.key;

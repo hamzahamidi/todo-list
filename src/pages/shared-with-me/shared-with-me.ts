@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, PopoverController } from 'ionic-angular';
+import { IonicPage, NavController } from 'ionic-angular';
 import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner';
 import { Subscription } from 'rxjs/Subscription';
 import { ShareListProvider } from '../../core';
 import { Observable } from 'rxjs/Observable';
-import { User, ModalButton } from '../../models';
+import { User, CustomAlert } from '../../models';
 import { AlertProvider } from '../../shared';
 
 /**
@@ -21,14 +21,13 @@ import { AlertProvider } from '../../shared';
 })
 export class SharedWithMePage {
   test: Set<Observable<User>>;
-  userObservables: Observable<User>[] = [];
+  userObservables: Observable<User>[];
   uidsSubscription$: Subscription;
   scanSub$: Subscription;
   _showHideSearchBar: boolean;
   _transparentBackGroundColor: boolean;
   constructor(public navCtrl: NavController, private qrScanner: QRScanner,
-    private _ShareListProvider: ShareListProvider, private popoverCtrl: PopoverController,
-    private alert: AlertProvider) {
+    private _ShareListProvider: ShareListProvider, private alert: AlertProvider) {
   }
 
   ngOnInit() {
@@ -38,19 +37,6 @@ export class SharedWithMePage {
           .map(uid => this._ShareListProvider
             .getSharedUserData(uid)))
         .subscribe(observables => this.userObservables = observables));
-
-   /*const sharedData = {
-      uid: "kFaV4ktvVEfpS3RBIK6YLhrRR8y2",
-      todoList:
-        {
-          id: "-L8c7yVp6LJ_6g_2M_fa",
-          read: true,
-          write: true
-        }
-    };
-   this._ShareListProvider.addSharedWithMe(sharedData)
-              .then(_ => this.alert.presentToast('Shared List succefully added'))
-              .catch(err => this.alert.presentToast(`Invalid QR ${err}`));*/
   }
 
   scanQR() {
@@ -105,20 +91,21 @@ export class SharedWithMePage {
     this.navCtrl.push('HomePage', { sharedwithMeUser: user })
   }
 
-  openOptions(event, user: User) {
-    const modalButtons: ModalButton[] = [
-      {
-        name: 'Delete User',
-        color: 'danger',
-        iconName: 'trash',
-        action: _ => this._ShareListProvider.deleteSharedWithMe(user)
-      }
-    ];
-    const popover = this.popoverCtrl.create('ModalPage', { modalButtons: modalButtons })
-    popover.present({
-      ev: event
-    });
+  deleteUser(user: User) {
+    console.log('user', user);
+    const alert: CustomAlert = {
+      title: 'Delete List',
+      message: `Are you sure you want to unshare lists from ${user.displayName}?`,
+      inputs: [],
+      noText: 'Cancel',
+      yesText: 'Yes',
+      yesToastThen: 'Shared User deleted',
+      yesToastCatch: 'Something wrong happened',
+      yesFunction: (_ => this._ShareListProvider.deleteSharedUser(user, true))
+    }
+    this.alert.createAlert(alert);
   }
+
 
   ngOnDestroy() {
     this.cancelScan();

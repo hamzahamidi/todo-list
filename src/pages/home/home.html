@@ -36,7 +36,7 @@
           </ion-list>
         </div>
       </ion-card-content>
-      <ion-row justify-content-around	>
+      <ion-row justify-content-around>
         <ion-col col-3>
           <button ion-button clear small icon-start color="danger" (click)="deleteList(todoList)">
             <ion-icon name="trash"></ion-icon>
@@ -70,7 +70,9 @@
           </ion-avatar>
           <ion-row wrap justify-content-start>
             <ion-col col-10>
-              <h2><b>{{todoList.name}}</b></h2>
+              <h2>
+                <b>{{todoList.name}}</b>
+              </h2>
             </ion-col>
             <ion-col text-wrap>
               <ion-note>
@@ -80,11 +82,11 @@
           </ion-row>
         </ion-item>
         <ion-item-options side="left">
-          <button ion-button color="warning" (click)="updateList(todoList)"s>
+          <button ion-button color="warning" (click)="updateList(todoList)" s>
             <ion-icon name="create"></ion-icon>
             Edit name
           </button>
-          <button ion-button color="success"  (click)="shareList(todoList)">
+          <button ion-button color="success" (click)="shareList(todoList)">
             <ion-icon name="share"></ion-icon>
             Share
           </button>
@@ -98,7 +100,7 @@
       </ion-item-sliding>
     </ion-list>
   </div>
-  <ion-fab right bottom>
+  <ion-fab *ngIf="!_hideAddButton" right bottom>
     <button color="secondary" ion-fab (click)="addList()">
       <ion-icon name="add"></ion-icon>
     </button>

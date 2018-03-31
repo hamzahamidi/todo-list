@@ -27,25 +27,41 @@
       <ion-item-divider [hidden]="!_hideSegment">
         Users I share with
       </ion-item-divider>
-      <ng-template #emptyList>
-        <empty-list icon="ios-people" h3Text="There is currently No User" h3Textsecond="I share with"></empty-list>
-      </ng-template>
-      <ng-container *ngIf="userObservables.length > 0; else emptyList">
-        <div *ngFor="let userObser of userObservables">
-          <ion-item #emptylist *ngIf="userObser | async as user">
-            <button ion-item no-lines (click)="goToLists(user)">
-              <ion-avatar item-start>
-                <img src="{{user.photoURL}}" alt="avatar">
-              </ion-avatar>
-              <h2>{{user.displayName}}</h2>
-              <h3>{{user.email}}</h3>
-            </button>
-            <button ion-button clear icon-only large color="gray" item-end (click)="openOptions($event, user)">
-              <ion-icon name="more"></ion-icon>
-            </button>
-          </ion-item>
-        </div>
+      <ng-container *ngIf="!userObservables; else showList">
+        <ion-spinner></ion-spinner>
       </ng-container>
+      <ng-template #showList>
+        <empty-list *ngIf="userObservables.length == 0" icon="ios-people" h3Text="There is currently No User" h3Textsecond="I share with"></empty-list>
+        <ng-container *ngIf="userObservables.length > 0">
+          <div *ngFor="let userObser of userObservables">
+            <ion-item-sliding *ngIf="userObser | async as user">
+              <ion-item>
+                <ion-avatar item-start>
+                  <img src="{{user.photoURL}}" alt="avatar">
+                </ion-avatar>
+                <h2>{{user.displayName}}</h2>
+                <h3>{{user.email}}</h3>
+              </ion-item>
+              <ion-item-options side="left">
+                <button ion-button color="warning">
+                  <ion-icon name="create"></ion-icon>
+                  Write
+                </button>
+                <button ion-button color="success">
+                  <ion-icon name="share"></ion-icon>
+                  Read
+                </button>
+              </ion-item-options>
+              <ion-item-options side="right">
+                <button ion-button color="danger" (click)="deleteUser(user)">
+                  <ion-icon name="trash"></ion-icon>
+                  Delete
+                </button>
+              </ion-item-options>
+            </ion-item-sliding>
+          </div>
+        </ng-container>
+      </ng-template>
     </ion-list>
   </div>
   <div [hidden]="selection!='qr-scanner'">

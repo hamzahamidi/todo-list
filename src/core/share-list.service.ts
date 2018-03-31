@@ -1,17 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
-import { User } from '../models';
-import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
+import { User, TodoList } from '../models';
+import { AngularFireDatabase, AngularFireObject, AngularFireList } from 'angularfire2/database';
 import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class ShareListProvider {
   user: User;
-  usersIShareWith: AngularFireList<User>;
-  usersSharedWithMe: AngularFireList<User>;
-  sharedWithMeUrl: string;
-  iShareWithUrl: string;
   constructor(private db: AngularFireDatabase,
     private storage: Storage) { }
 
@@ -19,24 +14,17 @@ export class ShareListProvider {
     this.getUser();
   }
   getUidsSharedWithMe() {
-    return this.getUser().then(user => this.getSettings(this.usersSharedWithMe));
+    return this.getUser().then(user => this.getSettings(this.getAngularFireList(this.user.uid, 'shared-with-me')));
   }
   getUidsIShareWith(): Promise<Observable<string[]>> {
-    return this.getUser().then(user => this.getSettings(this.usersIShareWith));
+    return this.getUser().then(user => this.getSettings(this.getAngularFireList(this.user.uid, 'i-share-with')));
   }
 
   getUser(): Promise<User> {
-    return this.storage.get("user").then(_user => {
-      this.user = JSON.parse(_user);
-      this.iShareWithUrl = `/users/${this.user.uid}/i-share-with`;
-      this.usersIShareWith = this.db.list(this.iShareWithUrl);
-      this.sharedWithMeUrl = `/users/${this.user.uid}/shared-with-me`;
-      this.usersSharedWithMe = this.db.list(this.sharedWithMeUrl);
-      return this.user;
-    });
+    return this.storage.get("user").then(user => this.user = JSON.parse(user));
   }
 
-  private getSettings(userList: AngularFireList<User>): Observable<string[]> | PromiseLike<Observable<string[]>> {
+  private getSettings(userList): Observable<string[]> | PromiseLike<Observable<string[]>> {
     return userList
       .valueChanges()
       .map(settings => settings
@@ -44,26 +32,27 @@ export class ShareListProvider {
   }
 
   addSharedWithMe(sharedData): Promise<void> {
-    const uidBaseList = this.db.list(`${this.sharedWithMeUrl}/${sharedData.uid}`);
-    const todoListList = this.db.list(`${this.sharedWithMeUrl}/${sharedData.uid}/todo-lists`);
+    const uidBaseList = this.getAngularFireList(this.user.uid, 'shared-with-me', sharedData.uid);
+    const todoListList = this.getAngularFireList(this.user.uid, 'shared-with-me', `${sharedData.uid}/todo-lists`);
     return uidBaseList.set('uid', sharedData.uid)
       .then(_ => todoListList.set(sharedData.todoList.id, sharedData.todoList))
       .then(_ => this.notifyISharedWith(sharedData));
   }
 
   notifyISharedWith(sharedData): Promise<void> {
-    const uidBaseList = this.getListIshareWith(sharedData.uid, this.user.uid);
-    const todoListList = this.getListIshareWith(sharedData.uid, `${this.user.uid}/todo-lists`);
+    const uidBaseList = this.getAngularFireList(sharedData.uid, 'i-share-with', this.user.uid);
+    const todoListList = this.getAngularFireList(sharedData.uid, 'i-share-with', `${this.user.uid}/todo-lists`);
     return uidBaseList.set('uid', this.user.uid)
       .then(_ => todoListList.set(sharedData.todoList.id, sharedData.todoList));
   }
 
-
-  deleteSharedWithMe(user: User): Promise<void[]> {
-    const notifyUsersISharedWith = this.getListIshareWith(user.uid);
-    return Promise
-      .all([notifyUsersISharedWith.remove(this.user.uid),
-      this.usersSharedWithMe.remove(user.uid)]);
+  deleteSharedUser(user: User, meThem: boolean): Promise<void> {
+    const iShareWith: string = meThem ? 'i-share-with' : 'shared-with-me';
+    const sharedWithMe: string = meThem ? 'shared-with-me' : 'i-share-with';
+    const notifyUserISharedWith = this.getAngularFireList(user.uid, iShareWith);
+    const userSharedWithMe = this.getAngularFireList(this.user.uid, sharedWithMe);
+    return notifyUserISharedWith.remove(this.user.uid)
+      .then(_ => userSharedWithMe.remove(user.uid));
   }
 
 
@@ -72,11 +61,20 @@ export class ShareListProvider {
     return sharedUser.valueChanges();
   }
 
-  private getListIshareWith(uid: string, pathEnd: string = '') {
-    return this.db.list(`/users/${uid}/i-share-with/${pathEnd}`);
+  private getAngularFireList(uid: string, pathMiddle: string, pathEnd: string = ''):
+    AngularFireList<string | User | TodoList> {
+    return this.db.list(`/users/${uid}/${pathMiddle}/${pathEnd}`);
   }
-  
+
   checkUserExists(uid: string) {
     // todo
+  }
+
+  getIdListsShared(uid: string): Promise<Observable<string[]>> {    
+    return this.getUser()
+      .then(user => this.getAngularFireList(this.user.uid, 'shared-with-me', `${uid}/todo-lists`)
+        .valueChanges()
+        .map(settings => settings
+          .map((todoList: TodoList) => todoList.id)));
   }
 }
