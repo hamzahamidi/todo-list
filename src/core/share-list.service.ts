@@ -13,11 +13,15 @@ export class ShareListProvider {
   ngOnInit() {
     this.getUser();
   }
-  getUidsSharedWithMe() {
-    return this.getUser().then(user => this.getSettings(this.getAngularFireList(this.user.uid, 'shared-with-me')));
+  getUidsSharedWithMe(): Promise<Observable<string[]>> {
+    return this.getUids('shared-with-me');
+
   }
   getUidsIShareWith(): Promise<Observable<string[]>> {
-    return this.getUser().then(user => this.getSettings(this.getAngularFireList(this.user.uid, 'i-share-with')));
+    return this.getUids('i-share-with');
+  }
+  private getUids(path: string): Promise<Observable<string[]>> {
+    return this.getUser().then(user => this.getSettings(this.getAngularFireList(this.user.uid, path)));
   }
 
   getUser(): Promise<User> {
@@ -70,7 +74,7 @@ export class ShareListProvider {
     // todo
   }
 
-  getIdListsShared(uid: string): Promise<Observable<string[]>> {    
+  getIdListsShared(uid: string): Promise<Observable<string[]>> {
     return this.getUser()
       .then(user => this.getAngularFireList(this.user.uid, 'shared-with-me', `${uid}/todo-lists`)
         .valueChanges()

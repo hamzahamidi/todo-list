@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, App, Nav } from 'ionic-angular';
+import { Platform, App } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { AuthProvider } from '../core';
@@ -12,8 +12,6 @@ import { AlertProvider } from '../shared';
 export class MyApp {
   rootPage: any = 'AuthPage';
   user: User;
-  @ViewChild(Nav) nav: Nav;
-  activePage: string;
 
   constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
     private _AuthProvider: AuthProvider, private alert: AlertProvider) {

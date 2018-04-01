@@ -70,9 +70,8 @@ export class ShareMyNotesPage {
   }
 
   deleteUser(user: User) {
-    console.log('user', user);
     const alert: CustomAlert = {
-      title: 'Delete List',
+      title: 'Stop sharing',
       message: `Are you sure you want to stop sharing with ${user.displayName}?`,
       inputs: [],
       noText: 'Cancel',
