@@ -1,0 +1,14 @@
+<!--
+  Generated template for the ModalPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<div>
+  <ion-row *ngFor="let modalButton of modalButtons">
+    <button ion-button clear small [color]="modalButton.color" (click)="action(modalButton)" icon-left>
+      <ion-icon [name]="modalButton.iconName"></ion-icon>
+      {{modalButton.name}}
+    </button>
+  </ion-row>
+</div>

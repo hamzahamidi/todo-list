@@ -22,15 +22,18 @@
     "@angular/platform-browser-dynamic": "5.0.3",
     "@ionic-native/core": "4.4.0",
     "@ionic-native/google-plus": "^4.5.3",
+    "@ionic-native/qr-scanner": "^4.5.3",
     "@ionic-native/splash-screen": "4.4.0",
     "@ionic-native/status-bar": "4.4.0",
     "@ionic/storage": "^2.1.3",
     "angularfire2": "^5.0.0-rc.6",
-    "cordova-android": "7.0.0",
+    "cordova-android": "^7.0.0",
     "cordova-browser": "5.0.3",
+    "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-device": "^1.1.7",
     "cordova-plugin-googleplus": "^5.2.1",
     "cordova-plugin-ionic-webview": "^1.1.16",
+    "cordova-plugin-qrscanner": "^2.5.0",
     "cordova-plugin-splashscreen": "^4.1.0",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-sqlite-storage": "^2.2.1",
@@ -41,7 +44,9 @@
     "qrcode": "^1.2.0",
     "rxjs": "5.5.2",
     "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.18"
+    "zone.js": "0.8.18",
+    "cordova-plugin-headercolor": "^1.0.0",
+    "cordova-plugin-statusbar": "~2.4.1"
   },
   "devDependencies": {
     "@ionic/app-scripts": "3.1.6",
@@ -62,7 +67,9 @@
         "REVERSED_CLIENT_ID": "com.googleusercontent.apps.588101161325-u6rc9vk39eri0ocomaqg4ha72kbfn1l0"
       },
       "cordova-sqlite-storage": {},
-      "cordova-plugin-statusbar": {}
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-qrscanner": {},
+      "cordova-plugin-headercolor": {}
     },
     "platforms": [
       "android",

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, IonicPage } from 'ionic-angular';
-import { TodoList, CustomAlert } from '../../models';
-import { TodoListProvider } from '../../core';
+import { NavController, IonicPage, NavParams } from 'ionic-angular';
+import { TodoList, CustomAlert, User } from '../../models';
+import { TodoListProvider, ShareListProvider } from '../../core';
 import { AlertProvider } from '../../shared';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 @IonicPage()
 @Component({
@@ -11,32 +12,48 @@ import { Subscription } from 'rxjs/Subscription';
   templateUrl: 'home.html'
 })
 export class HomePage {
+  test: Observable<TodoList[]>;
+  subscriberTodoListId$: Subscription;
   subscriberTodoList$: Subscription;
   todoLists: TodoList[];
+  titlePage: string = 'My Notes';
   _showHideSearchBar: boolean = true;
   _emptyTodoList: boolean = true;
   _showSpinner: boolean = true;
-  constructor(private navCtrl: NavController, private _TodoListProvider: TodoListProvider,
-    private alert: AlertProvider) {
+  _cardOrList: boolean;
+  _hideAddButton: boolean;
+  constructor(private navCtrl: NavController, private nav: NavParams, private _TodoListProvider: TodoListProvider,
+    private alert: AlertProvider, private _ShareListProvider: ShareListProvider) {
 
   }
 
   ngOnInit() {
-    this.getList();
+    const sharedwithMeUser: User = this.nav.get('sharedwithMeUser');
+    if (!!sharedwithMeUser) {
+      this._hideAddButton = true;
+      this.titlePage = `${sharedwithMeUser.displayName} Shared Lists`;
+      this._ShareListProvider.getIdListsShared(sharedwithMeUser.uid)
+        .then(todoListIdsObservable$ => this.subscriberTodoListId$ = todoListIdsObservable$
+          .subscribe(ids => this.populateLists(this._TodoListProvider
+            .getArrayList(sharedwithMeUser, ids))
+          )
+        )
+    } else this.getList();
   }
 
   getList() {
     this._TodoListProvider.getTodoList().then(observableTodoList => {
-      this.subscriberTodoList$ = observableTodoList
-        .subscribe(todoLists => {
-          this._showSpinner = false;
-          this._emptyTodoList = todoLists.length < 1;
-          this.todoLists = todoLists;
-          //console.log('todolist', this.todoLists);
-          //console.log('_emptyTodoList', this._emptyTodoList);
-          //console.log('showspinner', this._showSpinner);
-        })
+      this.populateLists(observableTodoList);
     });
+  }
+
+  private populateLists(observableTodoList: Observable<TodoList[]>) {
+    this.subscriberTodoList$ = observableTodoList
+      .subscribe(todoLists => {
+        this._showSpinner = false;
+        this._emptyTodoList = todoLists.length < 1;
+        this.todoLists = todoLists;
+      });
   }
 
   addList() {
@@ -90,15 +107,19 @@ export class HomePage {
     this.alert.createAlert(alert);
   }
 
-  presentToast(message: string) {
+  shareList(todoList: TodoList) {
+    this.navCtrl.push('ShareMyNotesPage', { sharedList: todoList });
+  }
+
+  presentToast(message: string): void {
     this.alert.presentToast(message);
   }
 
-  goToDetails(todoLists) {
+  goToDetails(todoLists): void {
     this.navCtrl.push('DetailsPage', { details: todoLists });
   }
 
-  refreshLists(refresher) {
+  refreshLists(refresher): void {
     //this.todoLists$ = Observable.of(null);
     this.getList();
     setTimeout(() => {
@@ -106,7 +127,8 @@ export class HomePage {
     }, 2000);
   }
 
-  ngOnDestroy() {
-    this.subscriberTodoList$.unsubscribe();
+  ngOnDestroy(): void {
+    if (this.subscriberTodoList$) this.subscriberTodoList$.unsubscribe();
+    if (this.subscriberTodoListId$) this.subscriberTodoListId$.unsubscribe();
   }
 }

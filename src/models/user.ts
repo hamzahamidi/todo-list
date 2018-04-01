@@ -7,4 +7,6 @@ export interface User {
   displayName?: string;
   favoriteColor?: string;
   todoList?: TodoList[];
+  sharedWithMe?: string[];
+  iShareWith?: string[];
 }

@@ -12,7 +12,7 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <preference name="ScrollEnabled" value="false" />
-    <preference name="android-minSdkVersion" value="16" />
+    <preference name="android-minSdkVersion" value="19" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="FadeSplashScreenDuration" value="300" />
@@ -84,8 +84,9 @@
     <plugin name="cordova-plugin-googleplus" spec="^5.2.1">
         <variable name="REVERSED_CLIENT_ID" value="com.googleusercontent.apps.588101161325-u6rc9vk39eri0ocomaqg4ha72kbfn1l0" />
     </plugin>
-    <engine name="android" spec="7.0.0" />
     <engine name="browser" spec="5.0.3" />
     <plugin name="cordova-plugin-headercolor" spec="^1.0.0" />
     <plugin name="cordova-plugin-statusbar" spec="~2.4.1" />
+    <plugin name="cordova-plugin-qrscanner" spec="^2.5.0" />
+    <engine name="android" spec="~7.0.0" />
 </widget>

@@ -17,9 +17,9 @@
     </ion-item>
     <ion-item no-lines>
       <button menuClose ion-item item-right (click)="goToMySharedNotes()">
-        <ion-label ion-text [color]="rootPage=='SharedPage'?'primary':'gray'">Shared with me</ion-label>
+        <ion-label ion-text [color]="rootPage=='SharedWithMePage'?'primary':'gray'">Shared with me</ion-label>
       </button>
-      <ion-icon item-left [color]="rootPage=='SharedPage'?'primary':'gray'" name='people'></ion-icon>
+      <ion-icon item-left [color]="rootPage=='SharedWithMePage'?'primary':'gray'" name='people'></ion-icon>
     </ion-item>
     <ion-item>
       <button menuClose no-lines ion-item item-right (click)="goToShareMyNotes()">

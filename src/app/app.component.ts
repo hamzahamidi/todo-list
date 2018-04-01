@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, App, Nav } from 'ionic-angular';
+import { Platform, App } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { AuthProvider } from '../core';
@@ -12,16 +12,15 @@ import { AlertProvider } from '../shared';
 export class MyApp {
   rootPage: any = 'AuthPage';
   user: User;
-  @ViewChild(Nav) nav: Nav;
-  activePage: string;
 
   constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
     private _AuthProvider: AuthProvider, private alert: AlertProvider) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      this.statusBar.styleLightContent();
-      this.statusBar.backgroundColorByHexString('#87173c');
+      //this.statusBar.styleLightContent();
+      //this.statusBar.overlaysWebView(false);
+      this.statusBar.backgroundColorByHexString('#33000000');
       splashScreen.hide();
     });
     app.viewDidEnter.subscribe(view => this.getUserData());
@@ -34,24 +33,24 @@ export class MyApp {
         this.user = JSON.parse(user);
         if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
       }
-     // else if (this.rootPage != 'AuthPage') this.signOut();
+      else if (this.rootPage != 'AuthPage') this.signOut();
     })
   }
 
   goToMyNotes() {
     this.rootPage = 'HomePage';
   }
-  
-  
-  goToMySharedNotes() {
 
+
+  goToMySharedNotes() {
+    this.rootPage = 'SharedWithMePage';
   }
-  
+
   goToShareMyNotes() {
     this.rootPage = 'ShareMyNotesPage'
   }
 
-  confirmSignOut(){
+  confirmSignOut() {
     const alert: CustomAlert = {
       title: 'Are you sure you want to sign out?',
       message: "You may loose all cached notes!",
@@ -65,17 +64,18 @@ export class MyApp {
     this.alert.createAlert(alert);
   }
   signOut(): Promise<any> {
-    return this._AuthProvider.signOut()
-    .then(_ => this.rootPage = 'AuthPage')
-    .catch(err => console.log('error:', err))
+    const promise = this._AuthProvider.signOut();
+    this.rootPage = 'AuthPage';
+    return promise
+      .catch(err => console.log('error:', err))
   }
-  
-  closeMenu(){
-    this.statusBar.overlaysWebView(false);
-    this.statusBar.backgroundColorByHexString('#87173c');
+
+  closeMenu() {
+    // this.statusBar.overlaysWebView(false);
+    // this.statusBar.backgroundColorByHexString('#87173c');
   }
-  
-  dragMenu(){
-    this.statusBar.overlaysWebView(true);
+
+  dragMenu() {
+    //this.statusBar.overlaysWebView(true);
   }
 }

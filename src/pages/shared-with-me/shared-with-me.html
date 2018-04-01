@@ -1,41 +1,30 @@
 <!--
-  Generated template for the ShareMyNotesPage page.
+  Generated template for the SharedWithMePage page.
 
   See http://ionicframework.com/docs/components/#navigation for more info on
   Ionic pages and navigation.
 -->
 <ion-header>
-  <nav-bar title="Share My Notes" (onClickSearch)="_showHideSearchBar=!_showHideSearchBar"></nav-bar>
+  <nav-bar title="Shared With Me" (onClickSearch)="_showHideSearchBar=!_showHideSearchBar"></nav-bar>
 </ion-header>
 
-
 <ion-content padding-top>
-  <ion-segment [hidden]="_hideSegment" [(ngModel)]="selection">
-    <ion-segment-button value="shared-users">
-      Users I shared with
-      <ion-icon name="contacts"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="qr-scanner">
-      Share My List
-      <ion-icon name="qr-scanner"></ion-icon>
-    </ion-segment-button>
-  </ion-segment>
-  <div [hidden]="selection!='shared-users'">
-    <ion-searchbar [hidden]="_showHideSearchBar" [(ngModel)]="users">
+  <div [hidden]="_transparentBackGroundColor">
+    <ion-searchbar [hidden]="!_showHideSearchBar" [(ngModel)]="users">
     </ion-searchbar>
     <ion-list>
-      <ion-item-divider [hidden]="!_hideSegment">
-        Users I share with
+      <ion-item-divider>
+        Users who share with me
       </ion-item-divider>
       <ng-container *ngIf="!userObservables; else showList">
         <ion-spinner></ion-spinner>
       </ng-container>
       <ng-template #showList>
-        <empty-list *ngIf="userObservables.length == 0" icon="ios-people" h3Text="There is currently No User" h3Textsecond="I share with"></empty-list>
+        <empty-list *ngIf="userObservables.length == 0" icon="ios-people" h3Text="There is currently No User" h3Textsecond="who share with me"></empty-list>
         <ng-container *ngIf="userObservables.length > 0">
           <div *ngFor="let userObser of userObservables">
             <ion-item-sliding *ngIf="userObser | async as user">
-              <ion-item>
+              <ion-item (click)="goToLists(user)">
                 <ion-avatar item-start>
                   <img src="{{user.photoURL}}" alt="avatar">
                 </ion-avatar>
@@ -44,11 +33,11 @@
               </ion-item>
               <ion-item-options side="left">
                 <button ion-button color="warning">
-                  <ion-icon name="create"></ion-icon>
+                  <ion-icon name="checkmark"></ion-icon>
                   Write
                 </button>
                 <button ion-button color="success">
-                  <ion-icon name="share"></ion-icon>
+                  <ion-icon name="checkmark"></ion-icon>
                   Read
                 </button>
               </ion-item-options>
@@ -64,12 +53,8 @@
       </ng-template>
     </ion-list>
   </div>
-  <div [hidden]="selection!='qr-scanner'">
-    <ion-item-divider no-lines></ion-item-divider>
-    <ion-item no-lines>
-      <ion-label ion-text text-center color="secondary"> Show this QR Code to share your list</ion-label>
-    </ion-item>
-    <canvas id="qr-image" #qrimage></canvas>
-  </div>
-
 </ion-content>
+<ion-footer text-center>
+  <button *ngIf="!_transparentBackGroundColor" text-center ion-button round (click)="scanQR()">Scan QR code</button>
+  <button *ngIf="_transparentBackGroundColor" text-center ion-button round color="danger" (click)="cancelScan()">Cancel</button>
+</ion-footer>
