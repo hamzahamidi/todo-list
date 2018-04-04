@@ -19,6 +19,7 @@
     h3Textsecond="Let's change that!"></empty-list>
     <div *ngIf="!!todoList.items">
       <ion-card *ngFor="let item of (todoList.items | value)">
+        <canvas [hidden]="!item.image" id="{{item.id}}" width="300" height="300"></canvas>
         <ion-card-content (click)="updateItem(item)">
           <ion-card-title>
             <ion-row>
