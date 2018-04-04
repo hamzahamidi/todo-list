@@ -54,9 +54,6 @@ export class HomePage {
         this._showSpinner = false;
         this._emptyTodoList = todoLists.length < 1;
         this.todoLists = todoLists;
-        console.log('tttttttt', this.todoLists);
-        console.log('tttttttt', this.todoLists.length);
-
       });
   }
 

@@ -22,7 +22,7 @@ export class MediaProvider {
    * get picture wih camera
    */
   getPictureMedia(): Promise<string | boolean> {
-    if (this.plt.is('cordova')) {
+    if (!document.URL.startsWith('http')) {
       return this.nativeGetPictureMedia();
     }
     // on a desktop device.
@@ -79,7 +79,7 @@ export class MediaProvider {
    * get picture from library
    */
   getPictureLibrary(): Promise<string> {
-    if (this.plt.is('cordova')) {
+    if (!document.URL.startsWith('http')) {
       return this.nativeGetPictureLibrary();
     }
     // on a desktop device.

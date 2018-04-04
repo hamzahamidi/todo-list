@@ -19,7 +19,7 @@ export class AuthProvider {
   signInGoogle(): Promise<User> {
     this.showLoader();
     //on a device running Android or on a device running iOS.
-    if (this.plt.is('cordova')) {
+    if (!document.URL.startsWith('http')) {
       return this.nativeloginUser();
     }
     // on a desktop device.
@@ -83,7 +83,7 @@ export class AuthProvider {
   fireBaseSignOut(): Promise<any> {
     return this.afAuth.auth.signOut()
       .then(_ => {
-        if (this.plt.is('cordova')) {
+        if (!document.URL.startsWith('http')) {
           return this.nativeSignOut();
         }
         // on a desktop device.
