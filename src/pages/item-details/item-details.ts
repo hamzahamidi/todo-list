@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { IonicPage, NavParams, ViewController } from 'ionic-angular';
 import { Item, TodoList } from '../../models';
 import { TodoListProvider } from '../../core';
-import { AlertProvider, MediaProvider } from '../../shared';
+import { AlertProvider, MediaProvider, SpeechProvider } from '../../shared';
 
 /**
  * Generated class for the ItemDetailsPage page.
@@ -17,13 +17,15 @@ import { AlertProvider, MediaProvider } from '../../shared';
   templateUrl: 'item-details.html',
 })
 export class ItemDetailsPage {
+  matches: string[];
   _AddOrEdit: boolean;
   _pictureReady: boolean;
   todoList: TodoList;
   _item: Item;
 
   constructor(private navParams: NavParams, private viewCtrl: ViewController, private _TodoListProvider: TodoListProvider,
-    private alert: AlertProvider, private media: MediaProvider) {
+    private alert: AlertProvider, private media: MediaProvider, private _SpeechProvider: SpeechProvider,
+    private cd: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -94,6 +96,26 @@ export class ItemDetailsPage {
 
   cancelTakePicture() {
     this.media.cancelTakePicture();
+  }
+
+  inputVoice(text: string) {
+    this._SpeechProvider.checkAvailable()
+      .then(ready => {
+        console.log('ready', ready);
+        if (ready) {
+          this._SpeechProvider.startListening()
+            .subscribe(matches => {
+              if (text == 'title') this._item.name = matches[0];
+              else if (text == 'description') this._item.description = matches[0];
+              this.cd.detectChanges();
+            });
+        }
+      }
+      )
+  }
+
+  stopInputVoice() {
+    this._SpeechProvider.stopListening();
   }
 
   leave(noChange?) {

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 import { User } from '../models';
 import { GooglePlus } from '@ionic-native/google-plus';
-import { Platform, LoadingController, Loading } from 'ionic-angular';
+import { LoadingController, Loading } from 'ionic-angular';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { Storage } from '@ionic/storage';
 
@@ -13,7 +13,7 @@ import { Storage } from '@ionic/storage';
 export class AuthProvider {
   loading: Loading;
   user: Observable<User>;
-  constructor(private plt: Platform, private afAuth: AngularFireAuth, private db: AngularFireDatabase,
+  constructor(private afAuth: AngularFireAuth, private db: AngularFireDatabase,
     private googlePlus: GooglePlus, private storage: Storage, private loadingCtrl: LoadingController) { }
 
   signInGoogle(): Promise<User> {

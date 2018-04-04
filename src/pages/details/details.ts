@@ -33,15 +33,18 @@ export class DetailsPage {
   }
 
   getItem() {
-    this.subscriberTodoList$ = this._TodoListProvider.getOneList(this.todoList.id).subscribe(todoList => {
-      this.todoList = todoList;
-      for (const i in this.todoList.items) {
-        if (this.todoList.items.hasOwnProperty(i)) {
-          const item = this.todoList.items[i];
-          if (item.image) this.loadImg(item);
+    if (!!this.todoList) {
+
+      this.subscriberTodoList$ = this._TodoListProvider.getOneList(this.todoList.id).subscribe(todoList => {
+        this.todoList = todoList;
+        for (const i in this.todoList.items) {
+          if (this.todoList.items.hasOwnProperty(i)) {
+            const item = this.todoList.items[i];
+            if (item.image) this.loadImg(item);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   addItem() {
@@ -81,12 +84,12 @@ export class DetailsPage {
     this.alert.presentToast(message);
   }
 
-  private loadImg(item: Item) {    
-    const img = new Image;
-    img.onload = _ => {
-      (<any>document.getElementById(item.id)).getContext("2d").drawImage(img, 0, 0, 300, 300);
-    }
-    img.src = item.image;
+  private loadImg(item: Item) {
+      const img = new Image;
+      img.onload = _ => {
+        (<any>document.getElementById(item.id)).getContext("2d").drawImage(img, 0, 0, 300, 300);
+      }
+      img.src = item.image;
   }
 
   ngOnDestroy() {
