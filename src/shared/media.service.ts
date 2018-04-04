@@ -32,12 +32,16 @@ export class MediaProvider {
   private nativeGetPictureMedia(): Promise<string> {
     this.options.sourceType = this.camera.PictureSourceType.CAMERA;
     this.options.correctOrientation = true;
+    return this.imgToString();
+  }
+  private imgToString(): Promise<string> {
     return this.camera.getPicture(this.options).then((imageData) => {
       return `data:image/jpeg;base64,${imageData}`;
     }, (err) => {
       return `${err}`;
     }).then(res => this.loadImageNative(res));
   }
+
   private browserReadyGetPictureMedia(): Promise<boolean> {
     document.getElementById('camera-browser').style.display = 'unset';
     document.getElementById('task-description').style.display = 'none';
@@ -84,11 +88,7 @@ export class MediaProvider {
 
   private nativeGetPictureLibrary(): Promise<string> {
     this.options.sourceType = this.camera.PictureSourceType.PHOTOLIBRARY;
-    return this.camera.getPicture(this.options).then((imageData) => {
-      return `data:image/jpeg;base64,${imageData}`;
-    }, (err) => {
-      return `${err}`;
-    }).then(res => this.loadImageNative(res));
+    return this.imgToString();
   }
   private browserReadyGetPictureLibrary(): Promise<string> {
     const imgInput = document.getElementById('imgInput');
