@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Camera, CameraOptions } from '@ionic-native/camera';
-import { Platform } from 'ionic-angular';
 
 
 @Injectable()
@@ -16,7 +15,7 @@ export class MediaProvider {
     mediaType: this.camera.MediaType.PICTURE,
     targetHeight: 300
   }
-  constructor(private plt: Platform, private camera: Camera) { }
+  constructor(private camera: Camera) { }
 
   /**
    * get picture wih camera

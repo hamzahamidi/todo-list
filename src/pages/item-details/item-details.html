@@ -18,20 +18,26 @@
     <ion-item>
       <ion-label floating>Task Name</ion-label>
       <ion-input type="text" [(ngModel)]="_item.name" name="title"></ion-input>
+      <button large ion-button clear color="dark" item-right (click)="inputVoice('title')">
+        <ion-icon name="mic"> </ion-icon>
+      </button>
     </ion-item>
     <ion-item>
       <ion-label floating>Description</ion-label>
       <ion-textarea [(ngModel)]="_item.description" name="description"></ion-textarea>
+      <button large ion-button clear color="dark" item-right (click)="inputVoice('description')">
+        <ion-icon name="mic"> </ion-icon>
+      </button>
     </ion-item>
-    <ion-row padding-vertical	 nowrap>
-        <button ion-item text-end clear icon-end *ngIf="!imageFileName" (click)="getPictureMedia()">
-          take Picture
-          <ion-icon name="camera"></ion-icon>
-        </button>
-        <button ion-item text-start clear icon-start *ngIf="!imageFileName" (click)="getPictureLibrary()">
-          from Library
-          <ion-icon name="image"></ion-icon>
-        </button>
+    <ion-row padding-vertical nowrap>
+      <button ion-item text-end clear icon-end *ngIf="!imageFileName" (click)="getPictureMedia()">
+        take Picture
+        <ion-icon name="camera"></ion-icon>
+      </button>
+      <button ion-item text-start clear icon-start *ngIf="!imageFileName" (click)="getPictureLibrary()">
+        from Library
+        <ion-icon name="image"></ion-icon>
+      </button>
     </ion-row>
     <canvas [hidden]="!_pictureReady && !_item.image" id="picture" width="300" height="300"></canvas>
     <ion-item padding>

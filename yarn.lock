@@ -158,6 +158,10 @@
   version "4.5.3"
   resolved "https://registry.yarnpkg.com/@ionic-native/qr-scanner/-/qr-scanner-4.5.3.tgz#1ed185a3fb0867e225b51f0f15c6fc464d11f2bd"
 
+"@ionic-native/speech-recognition@^4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/speech-recognition/-/speech-recognition-4.6.0.tgz#e1b72784ecd7108dfb4ff4073db0fee11971b1b2"
+
 "@ionic-native/splash-screen@4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@ionic-native/splash-screen/-/splash-screen-4.4.0.tgz#81ed723d7fd3f0d643072b5461fa0c32dcc330b1"
@@ -926,6 +930,10 @@ cordova-plugin-qrscanner@^2.5.0:
   dependencies:
     qrcode-reader "^0.2.2"
     webrtc-adapter "^3.1.4"
+
+cordova-plugin-speechrecognition@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-speechrecognition/-/cordova-plugin-speechrecognition-1.2.0.tgz#005f10c896fd9293d8587fe5522a2b642dea970a"
 
 cordova-plugin-splashscreen@^4.1.0:
   version "4.1.0"
