@@ -13,6 +13,7 @@ export class Item {
     state: boolean;
     description: string;
     date?: number;
+    image?: string;
     constructor(name?: string, state?: boolean, description?: string) {
         this.name = name || '';
         this.state = state || false;

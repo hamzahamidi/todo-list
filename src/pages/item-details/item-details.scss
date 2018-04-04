@@ -1,9 +1,25 @@
 page-item-details {
-    .scroll-content{
-        height: 100%;
-        width: 100%;
-      }
-      textarea{
-          min-height: 150px;
-      }
+  .scroll-content {
+    height: 80%;
+    width: 100%;
+  }
+  textarea {
+    min-height: 150px;
+  }
+  video {
+    display: block;
+    margin: 0 auto;
+    width: 300px;
+    height: 300px;
+  }
+  #camera-browser, #imgInput {
+    display: none;
+  }
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  width: 300px;
+  height: 300px;
 }

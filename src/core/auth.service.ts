@@ -19,13 +19,12 @@ export class AuthProvider {
   signInGoogle(): Promise<User> {
     this.showLoader();
     //on a device running Android or on a device running iOS.
-    if (this.plt.is('ios') || this.plt.is('android')) {
+    if (this.plt.is('cordova')) {
       return this.nativeloginUser();
     }
     // on a desktop device.
-    else if (this.plt.is('core')) {
-      return this.browserGoogleLogin();
-    }
+    else return this.browserGoogleLogin();
+
   }
 
   /**
@@ -84,13 +83,11 @@ export class AuthProvider {
   fireBaseSignOut(): Promise<any> {
     return this.afAuth.auth.signOut()
       .then(_ => {
-        if (this.plt.is('ios') || this.plt.is('android')) {
+        if (this.plt.is('cordova')) {
           return this.nativeSignOut();
         }
         // on a desktop device.
-        else if (this.plt.is('core')) {
-          return Promise.resolve(null);
-        }
+        else  return Promise.resolve(null);
       }
       )
   }

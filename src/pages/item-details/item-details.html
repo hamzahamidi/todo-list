@@ -14,7 +14,7 @@
 
 
 <ion-content padding>
-  <form (ngSubmit)="submit()" style="overflow: hidden;">
+  <div id="task-description">
     <ion-item>
       <ion-label floating>Task Name</ion-label>
       <ion-input type="text" [(ngModel)]="_item.name" name="title"></ion-input>
@@ -23,18 +23,41 @@
       <ion-label floating>Description</ion-label>
       <ion-textarea [(ngModel)]="_item.description" name="description"></ion-textarea>
     </ion-item>
+    <ion-row padding-vertical	 nowrap>
+        <button ion-item text-end clear icon-end *ngIf="!imageFileName" (click)="getPictureMedia()">
+          take Picture
+          <ion-icon name="camera"></ion-icon>
+        </button>
+        <button ion-item text-start clear icon-start *ngIf="!imageFileName" (click)="getPictureLibrary()">
+          from Library
+          <ion-icon name="image"></ion-icon>
+        </button>
+    </ion-row>
+    <canvas [hidden]="!_pictureReady && !_item.image" id="picture" width="300" height="300"></canvas>
     <ion-item padding>
       <ion-label>Finished</ion-label>
       <ion-checkbox [(ngModel)]="_item.state" name="state"></ion-checkbox>
     </ion-item>
-  </form>
-  <ion-row>
-    <ion-col>
-      <button ion-button color="danger" (click)="leave(true)" block>cancel</button>
-    </ion-col>
-    <ion-col>
-      <button *ngIf="_AddOrEdit" ion-button (click)="addItem()" block>Add Task</button>
-      <button *ngIf="!_AddOrEdit" ion-button color="warning" (click)="updateItem()" block>Update Task</button>
-    </ion-col>
-  </ion-row>
+    <input id="imgInput" type="file" accept=".png, .jpg, .jpeg" />
+    <ion-row>
+      <ion-col>
+        <button ion-button color="danger" (click)="leave(false)" block>cancel</button>
+      </ion-col>
+      <ion-col>
+        <button *ngIf="_AddOrEdit" ion-button (click)="addItem()" block>Add Task</button>
+        <button *ngIf="!_AddOrEdit" ion-button color="warning" (click)="updateItem()" block>Update Task</button>
+      </ion-col>
+    </ion-row>
+  </div>
+  <div id="camera-browser">
+    <video id="video"></video>
+    <ion-row>
+      <ion-col>
+        <button ion-button color="danger" (click)="cancelTakePicture()" block>cancel</button>
+      </ion-col>
+      <ion-col>
+        <button ion-button (click)="takePicture()" block>Take Picture</button>
+      </ion-col>
+    </ion-row>
+  </div>
 </ion-content>

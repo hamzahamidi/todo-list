@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component  } from '@angular/core';
 import { Platform, App } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -10,7 +10,7 @@ import { AlertProvider } from '../shared';
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage: any = 'AuthPage';
+  rootPage: any = 'AuthPage';ViewChild
   user: User;
 
   constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
@@ -52,7 +52,7 @@ export class MyApp {
 
   confirmSignOut() {
     const alert: CustomAlert = {
-      title: 'Are you sure you want to sign out?',
+      title: 'Sign Out?',
       message: "You may loose all cached notes!",
       inputs: [],
       noText: 'Cancel',

@@ -89,4 +89,5 @@
     <plugin name="cordova-plugin-statusbar" spec="~2.4.1" />
     <plugin name="cordova-plugin-qrscanner" spec="^2.5.0" />
     <engine name="android" spec="~7.0.0" />
+    <plugin name="cordova-plugin-camera" spec="^4.0.2" />
 </widget>
