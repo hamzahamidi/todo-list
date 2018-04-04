@@ -38,9 +38,13 @@
       </ion-card-content>
       <ion-row justify-content-around>
         <ion-col col-3>
-          <button ion-button clear small icon-start color="danger" (click)="deleteList(todoList)">
+          <button  *ngIf="!_hideAddButton" ion-button clear small icon-start color="danger" (click)="deleteList(todoList)">
             <ion-icon name="trash"></ion-icon>
             <div>Delete</div>
+          </button>
+          <button *ngIf="_hideAddButton" ion-button clear small icon-start color="danger" (click)="unshareList(todoList)">
+            <ion-icon name="trash"></ion-icon>
+            <div>Unshare</div>
           </button>
         </ion-col>
         <ion-col col-4>
@@ -55,7 +59,7 @@
             <div>Share</div>
           </button>
         </ion-col>
-        <ion-col align-self-center text-center>
+        <ion-col col-3 align-self-center text-center>
           <ion-note>
             {{todoList.date | dateCreated}}
           </ion-note>
@@ -92,9 +96,13 @@
           </button>
         </ion-item-options>
         <ion-item-options side="right">
-          <button ion-button color="danger" (click)="deleteList(todoList)">
+          <button *ngIf="!_hideAddButton" ion-button color="danger" (click)="deleteList(todoList)">
             <ion-icon name="trash"></ion-icon>
             Delete
+          </button>
+          <button *ngIf="_hideAddButton" ion-button color="danger" (click)="unshareList(todoList)">
+            <ion-icon name="trash"></ion-icon>
+            Unshare
           </button>
         </ion-item-options>
       </ion-item-sliding>

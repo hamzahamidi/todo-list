@@ -65,6 +65,12 @@ export class ShareListProvider {
     return sharedUser.valueChanges();
   }
 
+  unshareListWithMe(user: User, todoList: TodoList): Promise<void> {
+    const notifyUserWhoShareWithMe = this.getAngularFireList(user.uid, `i-share-with/${this.user.uid}/todo-lists`);
+    const listSharedWithMe = this.getAngularFireList(this.user.uid, `shared-with-me/${user.uid}/todo-lists`);
+    return notifyUserWhoShareWithMe.remove(todoList.id)
+      .then(_ => listSharedWithMe.remove(todoList.id));
+  }
   private getAngularFireList(uid: string, pathMiddle: string, pathEnd: string = ''):
     AngularFireList<string | User | TodoList> {
     return this.db.list(`/users/${uid}/${pathMiddle}/${pathEnd}`);

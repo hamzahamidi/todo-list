@@ -12,6 +12,7 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: 'home.html'
 })
 export class HomePage {
+  sharedwithMeUser: User;
   test: Observable<TodoList[]>;
   subscriberTodoListId$: Subscription;
   subscriberTodoList$: Subscription;
@@ -28,14 +29,14 @@ export class HomePage {
   }
 
   ngOnInit() {
-    const sharedwithMeUser: User = this.nav.get('sharedwithMeUser');
-    if (!!sharedwithMeUser) {
+    this.sharedwithMeUser = this.nav.get('sharedwithMeUser');
+    if (!!this.sharedwithMeUser) {
       this._hideAddButton = true;
-      this.titlePage = `${sharedwithMeUser.displayName} Shared Lists`;
-      this._ShareListProvider.getIdListsShared(sharedwithMeUser.uid)
+      this.titlePage = `${this.sharedwithMeUser.displayName} Shared Lists`;
+      this._ShareListProvider.getIdListsShared(this.sharedwithMeUser.uid)
         .then(todoListIdsObservable$ => this.subscriberTodoListId$ = todoListIdsObservable$
           .subscribe(ids => this.populateLists(this._TodoListProvider
-            .getArrayList(sharedwithMeUser, ids))
+            .getArrayList(this.sharedwithMeUser, ids))
           )
         )
     } else this.getList();
@@ -53,6 +54,9 @@ export class HomePage {
         this._showSpinner = false;
         this._emptyTodoList = todoLists.length < 1;
         this.todoLists = todoLists;
+        console.log('tttttttt', this.todoLists);
+        console.log('tttttttt', this.todoLists.length);
+
       });
   }
 
@@ -111,6 +115,29 @@ export class HomePage {
     this.navCtrl.push('ShareMyNotesPage', { sharedList: todoList });
   }
 
+  unshareList(todoList: TodoList) {
+    if (!!this.sharedwithMeUser) {
+      const todoListsLength: number = this.todoLists.length;
+      const alert: CustomAlert = {
+        title: 'Unshare list',
+        message: `Are you sure you want to stop accessing this list from ${this.sharedwithMeUser.displayName}?`,
+        inputs: [],
+        noText: 'Cancel',
+        yesText: 'Yes',
+        yesToastThen: 'Shared list deleted',
+        yesToastCatch: 'Something wrong happened',
+        yesFunction: (_ => this._ShareListProvider.unshareListWithMe(this.sharedwithMeUser, todoList)
+          .then(_ => {
+            if (todoListsLength == 1) {
+              this._ShareListProvider.deleteSharedUser(this.sharedwithMeUser, true)
+              this.navCtrl.pop();
+            }
+          }))
+      }
+      this.alert.createAlert(alert);
+    }
+  }
+
   presentToast(message: string): void {
     this.alert.presentToast(message);
   }
@@ -121,7 +148,7 @@ export class HomePage {
 
   refreshLists(refresher): void {
     //this.todoLists$ = Observable.of(null);
-    this.getList();
+    //this.getList();
     setTimeout(() => {
       refresher.complete();
     }, 2000);
