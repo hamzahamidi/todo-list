@@ -8,6 +8,7 @@ The application is able to do the following:
 - SSO Google plus.
 - Share list via QRcode.
 - Upload image from Camera or Storage.
+- Speech Recognition.
 ## Project Planning
 We use [ZenHub](https://zenhub.com) for project planning. Feel free to head over to the [Boards](https://github.com/hamzahamidi/todo-list#boards)
 tab and have a look through our pipelines and milestones. Please note in order to view the Github ZenHub Boards tab you will need the [ZenHub
