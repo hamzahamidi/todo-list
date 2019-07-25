@@ -36,7 +36,7 @@
     "cordova-plugin-device": "^1.1.7",
     "cordova-plugin-googleplus": "^5.2.1",
     "cordova-plugin-headercolor": "^1.0.0",
-    "cordova-plugin-ionic-webview": "^1.1.16",
+    "cordova-plugin-ionic-webview": "^2.2.0",
     "cordova-plugin-qrscanner": "^2.5.0",
     "cordova-plugin-speechrecognition": "^1.2.0",
     "cordova-plugin-splashscreen": "^4.1.0",
