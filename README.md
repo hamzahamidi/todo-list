@@ -55,6 +55,13 @@ npx cap open android
 `android/app/google-services.json` for Google sign-in to work, and the Firebase
 Android app must have the signing certificate's SHA-1 registered.
 
+Launcher icons and the splash screen are generated from `resources/icon.png` and
+`resources/splash.png`:
+
+```
+npx @capacitor/assets generate --assetPath resources --android
+```
+
 # Project Planning
 
 We use [ZenHub](https://zenhub.com) for project planning. Feel free to head over to the [Boards](https://github.com/hamzahamidi/todo-list#boards)

@@ -8,6 +8,12 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchAutoHide: false,
     },
+    FirebaseAuthentication: {
+      // AuthService signs in through the JS SDK with the credential this plugin
+      // returns, so the plugin must not establish a native session of its own.
+      skipNativeAuth: true,
+      providers: ['google.com'],
+    },
   },
 };
 
