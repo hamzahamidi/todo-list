@@ -1,33 +1,62 @@
-[![Build Status](https://travis-ci.org/hamzahamidi/todo-list.svg?branch=master)](https://travis-ci.org/hamzahamidi/todo-list) 
+[![CI](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a884eb46aac726ed5c65/maintainability)](https://codeclimate.com/github/hamzahamidi/todo-list/maintainability)
 [![GitHub release](https://img.shields.io/github/release/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list/releases/latest)
-[![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list) 
+[![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list)
+
 # TODO-LIST IONIC FIREBASE PROJECT
-This is a small Todo-List project with Ionic3 & Angularfire2.
+
+A small Todo-List project built with Ionic 9, Angular 22 and Firebase.
 The application is able to do the following:
+
 - CRUD Todo-List.
 - CRUD Tasks/items.
-- PWA(offline mode only read) for the web version.
-- SSO Google plus.
-- Share list via QRcode.
+- Installable web app.
+- SSO Google.
+- Share list via QR code.
 - Upload image from Camera or Storage.
 - Speech Recognition.
 
+QR scanning and speech recognition rely on Capacitor plugins and are only available
+in the native build.
+
 # Getting started
-Make sure you have the [ionic](https://ionicframework.com/getting-started) installed globally `npm install -g ionic
- cordova`. You can either use npm or [Yarn](https://yarnpkg.com) to manage the dependencies.
-- For npm the default package manager, run `npm install` to resolve all dependencies.
-- For [Yarn](https://yarnpkg.com), you can install it from [Here](https://yarnpkg.com/en/docs/install), then run `yarn install` to resolve all dependencies. You can also make Yarn the default package manager by running `ionic config set -g yarn true`.
 
-Run `ionic serve` for a dev server. Navigate to `http://localhost:8000/`. The app will automatically reload if you change any of the source files.
+Requires Node.js 22 or newer.
 
-Run `ionic cordova run android` to run on your android device. For more information refer to [Documentation](https://ionicframework.com/docs/intro/deploying/)
+```
+npm install
+npm start
+```
+
+Navigate to `http://localhost:4200/`. The app reloads automatically when you change
+a source file.
 
 # Building the project
-- Run `ionic cordova build browser` to build the browser project. The build artifacts will be stored in the `www/` directory. Use the `--prod` flag for a production build.
-- Run `ionic cordova build android` to build the android project. This will generate an apk. Use the `--prod` flag for a production build.
+
+```
+npm run build
+```
+
+Build artifacts are written to `www/`.
+
+# Running on Android
+
+The native shell uses [Capacitor](https://capacitorjs.com). The `android/` directory
+is generated and is not checked in:
+
+```
+npm run build
+npx cap add android
+npx cap sync
+npx cap open android
+```
+
+`google-services.json` at the repository root must be copied to
+`android/app/google-services.json` for Google sign-in to work, and the Firebase
+Android app must have the signing certificate's SHA-1 registered.
 
 # Project Planning
+
 We use [ZenHub](https://zenhub.com) for project planning. Feel free to head over to the [Boards](https://github.com/hamzahamidi/todo-list#boards)
 tab and have a look through our pipelines and milestones. Please note in order to view the Github ZenHub Boards tab you will need the [ZenHub
 browser extension](https://www.zenhub.com/extension). Alternatively, to view the planning board without the extension visit our [ZenHub Project Page](https://app.zenhub.com/workspace/o/hamzahamidi/todo-list/)

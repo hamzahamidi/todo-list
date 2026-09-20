@@ -30,14 +30,3 @@ ion-spinner {
   display: block;
   margin: auto;
 }
-
-// The QR scanner renders behind the WebView, so the app has to become
-// see-through while a scan is running.
-.scanner-active {
-  --background: transparent;
-  --ion-background-color: transparent;
-
-  ion-content {
-    --background: transparent;
-  }
-}

@@ -43,6 +43,7 @@
     "@angular/cli": "22.1.8",
     "@angular/compiler-cli": "22.1.7",
     "@capacitor/cli": "8.5.2",
+    "@eslint/js": "^10.0.1",
     "@types/qrcode": "1.5.5",
     "angular-eslint": "22.5.0",
     "eslint": "10.11.0",
