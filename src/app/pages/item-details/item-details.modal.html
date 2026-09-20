@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Task Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss(false)">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-input label="Task Name" labelPlacement="floating" type="text" [(ngModel)]="name"></ion-input>
+    <ion-button slot="end" size="large" fill="clear" color="dark" (click)="inputVoice('name')">
+      <ion-icon slot="icon-only" name="mic"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-item>
+    <ion-textarea label="Description" labelPlacement="floating" [(ngModel)]="description"></ion-textarea>
+    <ion-button slot="end" size="large" fill="clear" color="dark" (click)="inputVoice('description')">
+      <ion-icon slot="icon-only" name="mic"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-row class="ion-padding-vertical">
+    <ion-col>
+      <ion-button expand="block" fill="clear" color="dark" (click)="takePicture()">
+        take Picture
+        <ion-icon slot="end" name="camera"></ion-icon>
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="block" fill="clear" color="dark" (click)="pickFromLibrary()">
+        <ion-icon slot="start" name="image"></ion-icon>
+        from Library
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  @if (image()) {
+    <img class="preview" [src]="image()" alt="" />
+  }
+
+  <ion-item class="ion-padding">
+    <ion-checkbox [(ngModel)]="state">Finished</ion-checkbox>
+  </ion-item>
+
+  <ion-row>
+    <ion-col>
+      <ion-button color="danger" expand="block" (click)="dismiss(false)">cancel</ion-button>
+    </ion-col>
+    <ion-col>
+      @if (item) {
+        <ion-button color="warning" expand="block" (click)="updateItem()">Update Task</ion-button>
+      } @else {
+        <ion-button expand="block" (click)="addItem()">Add Task</ion-button>
+      }
+    </ion-col>
+  </ion-row>
+</ion-content>

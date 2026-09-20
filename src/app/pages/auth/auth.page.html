@@ -1,0 +1,34 @@
+<ion-content class="ion-padding" [forceOverscroll]="false">
+  <ion-grid class="center-vertically">
+    <ion-row>
+      <ion-col>
+        <form (submit)="$event.preventDefault()">
+          <div class="ion-padding">
+            <ion-item>
+              <ion-input label="Username" labelPlacement="floating" type="text"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Password" labelPlacement="floating" type="password"></ion-input>
+            </ion-item>
+          </div>
+          <div class="ion-padding">
+            <ion-button color="primary" type="submit" expand="block" shape="round">
+              Sign In
+            </ion-button>
+          </div>
+        </form>
+        <h1 class="ion-text-center">OR</h1>
+        <div class="ion-padding ion-text-center">
+          <ion-button color="google" expand="block" shape="round" (click)="signInGoogle()">
+            Sign In with Google
+            <ion-icon slot="end" name="logo-google"></ion-icon>
+          </ion-button>
+          <ion-button color="facebook" expand="block" shape="round">
+            Sign In with FaceBook
+            <ion-icon slot="end" name="logo-facebook"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

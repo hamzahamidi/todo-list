@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="backHref"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ todoList()?.name }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (todoList(); as list) {
+    @for (item of list.items | value; track item.id) {
+      <ion-card>
+        <ion-card-content (click)="updateItem(item)">
+          @if (item.image; as image) {
+            <img [src]="image" [alt]="item.name" width="300" height="300" />
+          }
+          <ion-card-title>
+            <ion-row>
+              <ion-col size="9">{{ item.name }}</ion-col>
+              <ion-col size="3" class="ion-align-self-start">
+                <p class="ion-text-end">
+                  <ion-text [color]="item.state ? 'success' : 'danger'">
+                    <b>{{ item.state | finished }}</b>
+                  </ion-text>
+                </p>
+              </ion-col>
+            </ion-row>
+          </ion-card-title>
+          <p>{{ item.description }}</p>
+        </ion-card-content>
+        <ion-row>
+          <ion-col class="ion-align-self-center ion-text-center">
+            <ion-button fill="clear" size="small" color="danger" (click)="deleteItem(item)">
+              <ion-icon slot="start" name="trash"></ion-icon>
+              Delete
+            </ion-button>
+          </ion-col>
+          <ion-col class="ion-align-self-center ion-text-center">
+            <ion-button fill="clear" size="small" color="warning" (click)="updateItem(item)">
+              <ion-icon slot="start" name="create"></ion-icon>
+              Edit
+            </ion-button>
+          </ion-col>
+          <ion-col class="ion-align-self-center ion-text-center">
+            <ion-note>{{ item.date | dateCreated }}</ion-note>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    } @empty {
+      <app-empty-list
+        icon="notifications"
+        h1Text="OMG!"
+        h3Text="You have no Tasks."
+        h3TextSecond="Let's change that!"
+      />
+    }
+  }
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button color="secondary" (click)="addItem()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

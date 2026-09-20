@@ -1,8 +1,7 @@
 {
   "name": "todo-list",
   "integrations": {
-    "cordova": {}
+    "capacitor": {}
   },
-  "type": "ionic-angular",
-  "pro_id": "todolist"
+  "type": "angular-standalone"
 }

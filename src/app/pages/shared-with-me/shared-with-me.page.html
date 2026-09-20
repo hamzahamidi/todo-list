@@ -1,0 +1,61 @@
+<app-nav-bar title="Shared With Me" (clickSearch)="toggleSearchBar()"></app-nav-bar>
+
+<ion-content class="ion-padding-top">
+  @if (showSearchBar()) {
+    <ion-searchbar></ion-searchbar>
+  }
+  <ion-list>
+    <ion-item-divider>
+      <ion-label>Users who share with me</ion-label>
+    </ion-item-divider>
+    @if (sharedUsers(); as entries) {
+      @for (entry of entries; track entry.uid) {
+        @if (entry.user$ | async; as user) {
+          <ion-item-sliding>
+            <ion-item [button]="true" (click)="goToLists(user)">
+              <ion-avatar slot="start">
+                @if (user.photoURL) {
+                  <img [src]="user.photoURL" alt="avatar" />
+                }
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ user.displayName }}</h2>
+                <h3>{{ user.email }}</h3>
+              </ion-label>
+            </ion-item>
+            <ion-item-options side="start">
+              <ion-item-option color="warning">
+                <ion-icon slot="start" name="checkmark"></ion-icon>
+                Write
+              </ion-item-option>
+              <ion-item-option color="success">
+                <ion-icon slot="start" name="checkmark"></ion-icon>
+                Read
+              </ion-item-option>
+            </ion-item-options>
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="deleteUser(user)">
+                <ion-icon slot="start" name="trash"></ion-icon>
+                Delete
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      } @empty {
+        <app-empty-list
+          icon="people"
+          h3Text="There is currently No User"
+          h3TextSecond="who share with me"
+        ></app-empty-list>
+      }
+    } @else {
+      <div class="ion-text-center">
+        <ion-spinner></ion-spinner>
+      </div>
+    }
+  </ion-list>
+</ion-content>
+
+<ion-footer class="ion-text-center ion-padding">
+  <ion-button shape="round" (click)="scanQR()">Scan QR code</ion-button>
+</ion-footer>
