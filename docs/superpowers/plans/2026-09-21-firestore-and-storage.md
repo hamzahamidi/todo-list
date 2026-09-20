@@ -496,7 +496,7 @@ service cloud.firestore {
 - [ ] **Step 4: Run the tests and watch them pass**
 
 Run: `npm run test:rules`
-Expected: 12 tests, 12 pass.
+Expected: 13 tests, 13 pass. That is the 12 above plus the smoke test from task 1.
 
 - [ ] **Step 5: Commit**
 
@@ -621,7 +621,7 @@ Inside `match /lists/{listId} { ... }` in `firestore.rules`, after the `allow up
 - [ ] **Step 4: Run the tests and watch them pass**
 
 Run: `npm run test:rules`
-Expected: 17 tests, 17 pass.
+Expected: 18 tests, 18 pass.
 
 - [ ] **Step 5: Commit**
 
@@ -757,7 +757,7 @@ Two traps this avoids. The official example on the Firebase docs page prints `re
 - [ ] **Step 4: Run the tests and watch them pass**
 
 Run: `npm run test:rules`
-Expected: 22 tests, 22 pass.
+Expected: 23 tests, 23 pass.
 
 - [ ] **Step 5: Note the production IAM grant**
 
@@ -873,7 +873,7 @@ test('a user writes only their own profile', async () => {
 - [ ] **Step 5: Run the rules tests**
 
 Run: `npm run test:rules`
-Expected: 23 tests, 23 pass.
+Expected: 24 tests, 24 pass.
 
 - [ ] **Step 6: Commit**
 
@@ -1381,6 +1381,8 @@ The photo is uploaded after the item exists, because the object path contains th
 
 `share-my-notes.page.ts` calls `iShareWith$()` and `shared-with-me.page.ts` calls `sharedWithMe$()`, both of which now yield `User[]` directly rather than a list of observables. Remove the `AsyncPipe` usage in both templates and iterate the array. Delete the QR scan handler from `shared-with-me.page.ts` and the `parseSharePayload` import; leave the Scan button visible and have it toast `Sharing is being rebuilt`.
 
+Delete `goToLists(user)` from `shared-with-me.page.ts` and the `(click)` binding on the row in its template. That handler navigated to `/home/:ownerUid`, which step 1 removes, so leaving it would send a tap through the wildcard route back to `/home`. The row stays inert until the sharing plan restores it.
+
 - [ ] **Step 6: Build, lint and type check**
 
 Run:
@@ -1428,7 +1430,7 @@ Run:
 npx tsc -p tsconfig.app.json --noEmit && npx ng lint && npx ng build && npm run test:rules && npm run test:services
 ```
 
-Expected: all clean, 23 rules tests and 2 service tests passing.
+Expected: all clean, 24 rules tests and 2 service tests passing.
 
 - [ ] **Step 3: Verify in a browser**
 
