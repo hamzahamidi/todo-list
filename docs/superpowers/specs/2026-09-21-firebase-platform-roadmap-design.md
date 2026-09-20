@@ -107,11 +107,13 @@ must therefore be fetched with `getBlob()` and shown through `URL.createObjectUR
 operator; the full set is `<`, `<=`, `==`, `>=`, `>`, `!=`, `array-contains`,
 `array-contains-any`, `in`, `not-in`. Because security rules are not filters, the query for
 "lists I can see" has to be expressible on its own, so membership needs a parallel array
-field queried with `array-contains`. The `members` map alone cannot back that query.
+field queried with `array-contains`. This is why the schema carries `memberUids` as an array
+rather than keying membership off a map, and why `joinedAt`, which is a map, is never queried.
 
-**Firebase Extensions is deprecated and shuts down on 2027-03-31.** The Delete User Data and
-Resize Images extensions are still installable but are not a foundation for new work. Both
-jobs get ordinary Cloud Functions instead.
+**Firebase Extensions is deprecated and shuts down on 2027-03-31.** The Delete User Data
+extension is still installable but is not a foundation for new work, so account deletion is
+an ordinary Cloud Function. The Resize Images extension does not apply: photos are captured
+at 300 px and are not resized server side.
 
 **The Capacitor auth plugin covers both new providers.** `@capacitor-firebase/authentication`
 8.5.2, already installed, supports `apple.com` and `facebook.com` with the `skipNativeAuth`
@@ -131,7 +133,7 @@ lists/{listId}
   name       string
   date       number
   memberUids string[]              // drives the query; owner included
-  roles      map<uid, "read"|"write">
+  joinedAt   map<uid, timestamp>   // when each member joined; owner set at creation
 
 lists/{listId}/items/{itemId}
   name        string
@@ -141,8 +143,10 @@ lists/{listId}/items/{itemId}
   photoPath   string | null        // a Storage path, never a download URL
 ```
 
-`memberUids` and `roles` describe the same fact in two shapes because each is needed for a
-different job: the array backs `array-contains`, the map carries the role. They are written
+There is no role field. An invite grants read, and only the owner writes, so membership and
+write authority are already fully described by `memberUids` and `ownerUid`. `joinedAt` exists
+for one reason: when an owner deletes their account the list transfers to the member who
+joined earliest, and nothing else records that order. `memberUids` and `joinedAt` are written
 together in a single update, and a rule enforces that they agree.
 
 The query for the lists a user can see:
@@ -167,22 +171,29 @@ match /lists/{listId} {
                 && request.resource.data.memberUids == [request.auth.uid];
   allow delete: if request.auth.uid == resource.data.ownerUid;
 
-  // A member must not be able to add members or change the owner.
-  allow update: if request.auth.uid == resource.data.ownerUid
-                || (request.auth.uid in resource.data.memberUids
-                    && request.resource.data.memberUids == resource.data.memberUids
-                    && request.resource.data.roles == resource.data.roles
-                    && request.resource.data.ownerUid == resource.data.ownerUid);
+  // The owner edits the list. A member may only remove themselves.
+  allow update: if (request.auth.uid == resource.data.ownerUid
+                    && request.resource.data.ownerUid == resource.data.ownerUid)
+                || isSelfRemoval();
 
   match /items/{itemId} {
-    allow read, write: if request.auth.uid in
+    allow read:  if request.auth.uid in
       get(/databases/$(database)/documents/lists/$(listId)).data.memberUids;
+    allow write: if request.auth.uid ==
+      get(/databases/$(database)/documents/lists/$(listId)).data.ownerUid;
   }
 }
 ```
 
-The `allow update` branch is the subtle one. Without pinning `memberUids`, `roles` and
-`ownerUid`, any member with write access could add themselves as owner or add a stranger.
+The owner drives every edit, which keeps the update rule short. It still pins `ownerUid`,
+because without that an owner could hand the list to someone who never agreed to hold it.
+
+Membership moves in two directions and they are not symmetric. Joining goes through a
+callable Cloud Function, because a client cannot be trusted to decide that its own invite
+token was valid, unexpired and unused. Leaving is a client write, allowed by `isSelfRemoval()`:
+a diff that removes the caller's own uid from `memberUids` and `joinedAt` and changes nothing
+else. Writing that helper precisely, so it cannot be used to remove somebody else, is the
+sharpest rules test in phase 3.
 
 ```
 // storage.rules
@@ -191,8 +202,8 @@ match /b/{bucket}/o/lists/{listId}/{allPaths=**} {
     && request.auth.uid in
        firestore.get(/databases/(default)/documents/lists/$(listId)).data.memberUids;
   allow write: if request.auth != null
-    && request.auth.uid in
-       firestore.get(/databases/(default)/documents/lists/$(listId)).data.memberUids
+    && request.auth.uid ==
+       firestore.get(/databases/(default)/documents/lists/$(listId)).data.ownerUid
     && request.resource.size < 10 * 1024 * 1024
     && request.resource.contentType.matches('image/.*');
 }
@@ -216,11 +227,16 @@ old shape.
 
 **Phase 3, sharing.** Membership replaces the duplicated subtrees. The QR code carries a
 list id and an invite token rather than a copy of the list. The web gets an invite link,
-since QR scanning needs a camera the desktop web build will not reliably have.
+since QR scanning needs a camera the desktop web build will not reliably have. An invite
+grants read only. Accepting one calls a Cloud Function that checks the token and adds the
+caller to `memberUids` and `joinedAt` in one write; leaving is a direct client write covered
+by `isSelfRemoval()`.
 
 **Phase 4, account lifecycle.** In-app account deletion, required by Apple guideline
-5.1.1(v). A Cloud Function deletes the user's lists, items and Storage objects, transfers or
-deletes lists they own that others are members of, and removes them from lists they joined.
+5.1.1(v). A Cloud Function removes the user from every list they joined, and for each list
+they own decides between two cases: a list with other members transfers to the member with
+the earliest `joinedAt`, and a list with no other members is deleted along with its items and
+Storage objects.
 Deleting an Auth user requires a recent sign-in, so the flow reauthenticates first. Sign in
 with Apple also requires revoking the Apple token, which the Firebase JS SDK exposes
 as `revokeAccessToken`.
@@ -263,14 +279,25 @@ minting V4 signed URLs, which caps at seven days and cannot be revoked early.
 **Facebook App Review can reject or stall.** It is the only phase with an external gate not
 under our control. Nothing else depends on it, so it ships last within phase 5.
 
-**Two fields describe membership.** `memberUids` and `roles` can drift. The update rule
-pins both, and the tests assert they move together.
+**Two fields describe membership.** `memberUids` and `joinedAt` can drift, and a list whose
+`joinedAt` is missing an entry has no defined transfer target. The join function writes both
+in one update, `isSelfRemoval()` requires both to change together, and the tests assert it.
 
-## Open questions
+## Resolved on 2026-09-21
 
-1. What happens to a shared list when its owner deletes their account? Transfer to the
-   longest-standing member, or delete it for everyone? This changes the phase 4 function.
-2. Does an invite link grant read or write, and can the owner change a member's role after
-   the fact? The `roles` map supports it; the UI does not exist yet.
-3. Is a thumbnail needed, or is a resized original enough? The camera already captures at
-   300 px, so a separate thumbnail may be unnecessary.
+**An owner who deletes their account hands the list to its oldest member.** The member with
+the earliest `joinedAt` becomes the new `ownerUid`. A list with no other members is deleted.
+This is why `joinedAt` exists at all.
+
+**An invite grants read.** Only the owner writes. That removed the role field from the
+schema, shortened the update rule, and made the Storage write rule owner only.
+
+**No thumbnails.** `@capacitor/camera` is already configured to capture at 300 px, so the
+stored object is small enough to serve directly. No resize function, and no dependency on
+the Resize Images extension that is going away in 2027.
+
+## Deliberately deferred
+
+- Changing a member's role after the fact. There are no roles to change.
+- Write access for members. It would reintroduce the role field and widen every write rule.
+- Offline conflict handling beyond Firestore's own last write wins.
