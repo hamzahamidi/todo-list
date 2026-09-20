@@ -1,11 +1,15 @@
 [![CI](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml)
+[![Deploy](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a884eb46aac726ed5c65/maintainability)](https://codeclimate.com/github/hamzahamidi/todo-list/maintainability)
 [![GitHub release](https://img.shields.io/github/release/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list)
 
 # TODO-LIST IONIC FIREBASE PROJECT
 
-A small Todo-List project built with Ionic 9, Angular 22 and Firebase.
+A small Todo-List project built with Ionic and Firebase.
+
+**Live at [hamidihamza.com/todo-list](https://hamidihamza.com/todo-list/).**
+
 The application is able to do the following:
 
 - CRUD Todo-List.
@@ -18,6 +22,16 @@ The application is able to do the following:
 
 QR scanning and speech recognition rely on Capacitor plugins and are only available
 in the native build.
+
+## Stack
+
+| | |
+|---|---|
+| UI | Ionic 9 (standalone components) |
+| Framework | Angular 22 |
+| Backend | Firebase Realtime Database and Auth (modular SDK with `rxfire`) |
+| Native | Capacitor 8 |
+| Build | Angular CLI |
 
 # Getting started
 
@@ -38,6 +52,18 @@ npm run build
 ```
 
 Build artifacts are written to `www/`.
+
+Run `npm run lint` to check the sources.
+
+# Deployment
+
+Pushing to `master` runs [`deploy.yml`](.github/workflows/deploy.yml), which builds the
+app and publishes it to GitHub Pages. The Pages source is set to GitHub Actions, so no
+branch holds the built output.
+
+The build is served from a subdirectory, so it is built with `--base-href /todo-list/`.
+`index.html` is copied to `404.html` because GitHub Pages has no rewrite rule and the
+router needs every path to reach the app shell.
 
 # Running on Android
 
@@ -64,7 +90,5 @@ npx @capacitor/assets generate --assetPath resources --android
 
 # Project Planning
 
-We use [ZenHub](https://zenhub.com) for project planning. Feel free to head over to the [Boards](https://github.com/hamzahamidi/todo-list#boards)
-tab and have a look through our pipelines and milestones. Please note in order to view the Github ZenHub Boards tab you will need the [ZenHub
-browser extension](https://www.zenhub.com/extension). Alternatively, to view the planning board without the extension visit our [ZenHub Project Page](https://app.zenhub.com/workspace/o/hamzahamidi/todo-list/)
-![alt text](https://user-images.githubusercontent.com/22576950/36248044-666a782a-1236-11e8-862c-936d1b94a41e.png)
+We use [ZenHub](https://zenhub.com) for project planning. The pipelines and milestones
+live on the [ZenHub project page](https://app.zenhub.com/workspace/o/hamzahamidi/todo-list/).
