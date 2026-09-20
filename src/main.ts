@@ -15,8 +15,7 @@ import { provideFirebase } from './app/core';
 bootstrapApplication(AppComponent, {
   providers: [
     provideIonicAngular(),
-    // Angular's default strategy reuses a component when only route params change,
-    // and every page reads paramMap once at construction.
+    // Angular's default strategy reuses a page when only its route params change.
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(
       routes,
