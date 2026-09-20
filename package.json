@@ -2,7 +2,7 @@
   "name": "todo-list",
   "version": "1.0.0",
   "author": "Hamza Hamidi",
-  "homepage": "https://hamzahamidi.github.io/todo-list/",
+  "homepage": "https://hamidihamza.com/todo-list/",
   "description": "TodoList using Ionic & Firebase",
   "private": true,
   "scripts": {
