@@ -54,7 +54,10 @@
               "node_modules/@ionic/angular/css/flex-utils.css",
               "src/global.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ]
           },
           "configurations": {
             "production": {

@@ -12,6 +12,40 @@ export interface SharePayload {
   todoList: Pick<TodoList, 'id' | 'read' | 'write'>;
 }
 
+// Both fields are interpolated into a Firebase path. Auth UIDs and push() keys
+// are drawn from this alphabet, and the payload comes from a scanned QR code,
+// so anything outside it is not a code this app wrote.
+const FIREBASE_KEY = /^[A-Za-z0-9_-]{1,128}$/;
+
+function isKey(value: unknown): value is string {
+  return typeof value === 'string' && FIREBASE_KEY.test(value);
+}
+
+/** Returns null when the scanned code is not a share payload this app wrote. */
+export function parseSharePayload(raw: string): SharePayload | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== 'object' || parsed === null) {
+    return null;
+  }
+  const { uid, todoList } = parsed as Record<string, unknown>;
+  if (!isKey(uid) || typeof todoList !== 'object' || todoList === null) {
+    return null;
+  }
+  const { id, read, write } = todoList as Record<string, unknown>;
+  if (!isKey(id)) {
+    return null;
+  }
+  return {
+    uid,
+    todoList: { id, read: read === true, write: write === true },
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ShareListService {
   private readonly db = inject(FIREBASE_DATABASE);

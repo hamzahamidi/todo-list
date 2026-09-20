@@ -13,7 +13,7 @@ import { provideFirebase } from './app/core';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideIonicAngular({ mode: 'md' }),
+    provideIonicAngular(),
     provideRouter(
       routes,
       withPreloading(PreloadAllModules),
