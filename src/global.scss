@@ -1,0 +1,43 @@
+@use './theme/variables.scss' as *;
+
+
+h2 {
+  white-space: normal;
+}
+
+@media only screen and (max-width: 520px) {
+  h2 {
+    white-space: nowrap !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.center-vertically {
+  padding-top: 25%;
+  padding-bottom: 25%;
+}
+
+ion-spinner {
+  display: block;
+  margin: auto;
+}
+
+// The QR scanner renders behind the WebView, so the app has to become
+// see-through while a scan is running.
+.scanner-active {
+  --background: transparent;
+  --ion-background-color: transparent;
+
+  ion-content {
+    --background: transparent;
+  }
+}

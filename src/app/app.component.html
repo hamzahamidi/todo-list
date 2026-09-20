@@ -1,0 +1,75 @@
+<ion-app>
+  @if (user(); as profile) {
+    <ion-menu contentId="main-content" menuId="myMenu">
+      <ion-header class="navigation-drawer">
+        <div class="profil">
+          <img class="profil-img" [src]="profile.photoURL" alt="avatar" />
+          <p class="profil-text">
+            <ion-text color="light">
+              <b>{{ profile.displayName }}</b>
+              <br />{{ profile.email }}
+            </ion-text>
+          </p>
+        </div>
+      </ion-header>
+      <ion-content class="ion-padding-vertical">
+        <ion-menu-toggle>
+          <ion-item
+            button
+            lines="none"
+            routerLink="/home"
+            routerLinkActive="selected"
+            #homeLink="routerLinkActive"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <ion-icon
+              slot="start"
+              name="list-circle"
+              [color]="homeLink.isActive ? 'primary' : 'gray'"
+            ></ion-icon>
+            <ion-label [color]="homeLink.isActive ? 'primary' : 'gray'">My notes</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+        <ion-menu-toggle>
+          <ion-item
+            button
+            lines="none"
+            routerLink="/shared-with-me"
+            routerLinkActive="selected"
+            #sharedLink="routerLinkActive"
+          >
+            <ion-icon
+              slot="start"
+              name="people"
+              [color]="sharedLink.isActive ? 'primary' : 'gray'"
+            ></ion-icon>
+            <ion-label [color]="sharedLink.isActive ? 'primary' : 'gray'">Shared with me</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+        <ion-menu-toggle>
+          <ion-item
+            button
+            lines="none"
+            routerLink="/share-my-notes"
+            routerLinkActive="selected"
+            #shareLink="routerLinkActive"
+          >
+            <ion-icon
+              slot="start"
+              name="share-social"
+              [color]="shareLink.isActive ? 'primary' : 'gray'"
+            ></ion-icon>
+            <ion-label [color]="shareLink.isActive ? 'primary' : 'gray'">Share my notes</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+        <ion-menu-toggle>
+          <ion-item button lines="none" (click)="confirmSignOut()">
+            <ion-icon slot="start" name="log-out"></ion-icon>
+            <ion-label>Sign Out</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-content>
+    </ion-menu>
+  }
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

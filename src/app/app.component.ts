@@ -1,81 +1,82 @@
-import { Component  } from '@angular/core';
-import { Platform, App } from 'ionic-angular';
-import { StatusBar } from '@ionic-native/status-bar';
-import { SplashScreen } from '@ionic-native/splash-screen';
-import { AuthProvider } from '../core';
-import { User, CustomAlert } from '../models';
-import { AlertProvider } from '../shared';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar } from '@capacitor/status-bar';
+import {
+  IonApp,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonMenu,
+  IonMenuToggle,
+  IonRouterOutlet,
+  IonText,
+} from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { listCircle, logOut, people, shareSocial } from 'ionicons/icons';
+import { AuthService } from './core';
+import { AlertService } from './shared';
+import { CustomAlert } from './models';
 
 @Component({
-  templateUrl: 'app.html'
+  selector: 'app-root',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+  imports: [
+    IonApp,
+    IonMenu,
+    IonHeader,
+    IonContent,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonText,
+    IonMenuToggle,
+    IonRouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+  ],
 })
-export class MyApp {
-  rootPage: any = 'AuthPage';ViewChild
-  user: User;
+export class AppComponent {
+  private readonly auth = inject(AuthService);
+  private readonly alert = inject(AlertService);
+  private readonly router = inject(Router);
 
-  constructor(platform: Platform, app: App, private statusBar: StatusBar, splashScreen: SplashScreen,
-    private _AuthProvider: AuthProvider, private alert: AlertProvider) {
-    platform.ready().then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
-      //this.statusBar.styleLightContent();
-      //this.statusBar.overlaysWebView(false);
-      this.statusBar.backgroundColorByHexString('#33000000');
-      splashScreen.hide();
-    });
-    app.viewDidEnter.subscribe(view => this.getUserData());
-  }
-  getUserData() {
-    this._AuthProvider.getUserData().then(user => {
-      console.log('user from storage:', user);
-      console.log('rootPage:', this.rootPage);
-      if (!!user) {
-        this.user = JSON.parse(user);
-        if (this.rootPage == 'AuthPage') this.rootPage = 'HomePage';
-      }
-      else if (this.rootPage != 'AuthPage') this.signOut();
-    })
+  protected readonly user = toSignal(this.auth.user$, { initialValue: null });
+
+  constructor() {
+    addIcons({ listCircle, people, shareSocial, logOut });
+    void this.prepareNativeChrome();
   }
 
-  goToMyNotes() {
-    this.rootPage = 'HomePage';
-  }
-
-
-  goToMySharedNotes() {
-    this.rootPage = 'SharedWithMePage';
-  }
-
-  goToShareMyNotes() {
-    this.rootPage = 'ShareMyNotesPage'
-  }
-
-  confirmSignOut() {
+  protected confirmSignOut(): void {
     const alert: CustomAlert = {
       title: 'Sign Out?',
-      message: "You may loose all cached notes!",
-      inputs: [],
+      message: 'You may lose all cached notes!',
       noText: 'Cancel',
       yesText: 'Yes',
-      yesToastThen: 'Succesfuly signed out',
+      yesToastThen: 'Successfully signed out',
       yesToastCatch: 'Something wrong happened',
-      yesFunction: (_ => this.signOut())
+      yesFunction: () => this.signOut(),
+    };
+    void this.alert.createAlert(alert);
+  }
+
+  private async signOut(): Promise<void> {
+    await this.auth.signOut();
+    await this.router.navigate(['/auth']);
+  }
+
+  private async prepareNativeChrome(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      return;
     }
-    this.alert.createAlert(alert);
-  }
-  signOut(): Promise<any> {
-    const promise = this._AuthProvider.signOut();
-    this.rootPage = 'AuthPage';
-    return promise
-      .catch(err => console.log('error:', err))
-  }
-
-  closeMenu() {
-    // this.statusBar.overlaysWebView(false);
-    // this.statusBar.backgroundColorByHexString('#87173c');
-  }
-
-  dragMenu() {
-    //this.statusBar.overlaysWebView(true);
+    await StatusBar.setBackgroundColor({ color: '#33000000' });
+    await SplashScreen.hide();
   }
 }
