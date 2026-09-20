@@ -31,10 +31,15 @@ export class AuthPage {
   }
 
   protected async signInGoogle(): Promise<void> {
+    // Opening the Google popup has to happen in the click's own frame, before the
+    // loader is awaited, or the browser treats it as unrequested and blocks it.
+    const signIn = this.auth.signInGoogle();
+    signIn.catch(() => undefined);
+
     const loading = await this.loadingCtrl.create({ message: 'Please wait...' });
     await loading.present();
     try {
-      await this.auth.signInGoogle();
+      await signIn;
     } catch {
       await loading.dismiss();
       return;

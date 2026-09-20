@@ -76,7 +76,11 @@ export class AppComponent {
     if (!Capacitor.isNativePlatform()) {
       return;
     }
-    await StatusBar.setBackgroundColor({ color: '#33000000' });
+    // setBackgroundColor is Android-only and rejects elsewhere; the original app
+    // only ever shipped an Android build.
+    if (Capacitor.getPlatform() === 'android') {
+      await StatusBar.setBackgroundColor({ color: '#33000000' });
+    }
     await SplashScreen.hide();
   }
 }
