@@ -163,6 +163,7 @@ export async function withTestEnv(
   });
   try {
     await env.clearFirestore();
+    await env.clearStorage();
     await fn(env);
   } finally {
     await env.cleanup();
@@ -194,8 +195,10 @@ Add to `scripts` in `package.json`:
 
 ```json
 "emulators": "firebase emulators:start --only firestore,storage,auth",
-"test:rules": "firebase emulators:exec --only firestore,storage \"node --test test/rules/\""
+"test:rules": "firebase emulators:exec --only firestore,storage \"node --test 'test/rules/**/*.test.ts'\""
 ```
+
+Node 26 throws `Cannot find module` on a bare directory argument to `node --test`, so the script passes a glob. `clearStorage()` sits beside `clearFirestore()` because a successful upload in one test would otherwise survive into every later test of the same run.
 
 - [ ] **Step 6: Run the tests**
 
