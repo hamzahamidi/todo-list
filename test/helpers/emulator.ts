@@ -22,6 +22,7 @@ export async function withTestEnv(
   });
   try {
     await env.clearFirestore();
+    await env.clearStorage();
     await fn(env);
   } finally {
     await env.cleanup();
