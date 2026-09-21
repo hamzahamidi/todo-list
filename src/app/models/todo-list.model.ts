@@ -4,16 +4,16 @@ export interface Item {
   state: boolean;
   description: string;
   date: number;
-  image?: string;
+  photoPath?: string;
 }
 
 export interface TodoList {
   id: string;
+  ownerUid: string;
   name: string;
   date: number;
-  items?: Record<string, Item>;
-  read?: boolean;
-  write?: boolean;
+  memberUids: string[];
+  joinedAt: Record<string, number>;
 }
 
 export function newItem(): Omit<Item, 'id'> {
