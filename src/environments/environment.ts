@@ -5,7 +5,6 @@ export const environment = {
   firebase: {
     apiKey: 'AIzaSyAzamPI7qF93z18oStf4b_iuyJ5ROhtTvo',
     authDomain: 'm2gi-ionic-21b7b.firebaseapp.com',
-    databaseURL: 'https://m2gi-ionic-21b7b.firebaseio.com',
     projectId: 'm2gi-ionic-21b7b',
     storageBucket: 'm2gi-ionic-21b7b.appspot.com',
     messagingSenderId: '588101161325',

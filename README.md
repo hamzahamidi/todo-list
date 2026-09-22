@@ -35,7 +35,8 @@ in the native build.
 
 # Getting started
 
-Requires Node.js 22 or newer.
+Requires Node.js 24 or newer. The tests also need Java 21 or newer for the Firebase
+emulators.
 
 ```
 npm install
@@ -54,6 +55,19 @@ npm run build
 Build artifacts are written to `www/`.
 
 Run `npm run lint` to check the sources.
+
+# Testing
+
+The Firestore and Cloud Storage security rules live in `firestore.rules` and
+`storage.rules`, and are tested against the Firebase emulators:
+
+```
+npm run test:rules
+npm run test:services
+```
+
+`test:rules` checks every allow and deny path. `test:services` replays the
+services' exact queries and writes as a signed in user under those rules.
 
 # Deployment
 
