@@ -1,18 +1,30 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /lists/{listId}/{itemId}/{fileName} {
+    // The epoch segment is the list's createdAt in milliseconds. Objects outlive a
+    // deleted list, so without it a recreated list with the same id would inherit them.
+    match /lists/{listId}/{epoch}/{itemId}/{fileName} {
       function list() {
         return firestore.get(/databases/(default)/documents/lists/$(listId)).data;
       }
 
+      function isCurrentEpoch() {
+        return epoch == string(list().createdAt.toMillis());
+      }
+
+      function isListOwner() {
+        return request.auth != null && isCurrentEpoch() && request.auth.uid == list().ownerUid;
+      }
+
       allow read: if request.auth != null
+        && isCurrentEpoch()
         && request.auth.uid in list().memberUids;
 
-      allow write: if request.auth != null
-        && request.auth.uid == list().ownerUid
-        && request.resource.size < 10 * 1024 * 1024
+      allow create, update: if isListOwner()
+        && request.resource.size <= 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+
+      allow delete: if isListOwner();
     }
   }
 }

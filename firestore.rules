@@ -11,39 +11,49 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if signedIn();
+      allow get: if signedIn();
+      allow list: if false;
       allow write: if signedIn() && request.auth.uid == userId;
     }
 
     match /lists/{listId} {
-      function unchanged(field) {
-        return request.resource.data[field] == resource.data[field];
+      function isOwner() {
+        return signedIn() && request.auth.uid == resource.data.ownerUid;
+      }
+
+      function changedKeys() {
+        return request.resource.data.diff(resource.data).affectedKeys();
+      }
+
+      function validNewList() {
+        let d = request.resource.data;
+        let uid = request.auth.uid;
+        return d.keys().hasAll(['ownerUid', 'name', 'date', 'createdAt', 'memberUids', 'joinedAt'])
+          && d.keys().hasOnly(['ownerUid', 'name', 'date', 'createdAt', 'memberUids', 'joinedAt'])
+          && d.ownerUid == uid
+          && d.name is string
+          && d.date is number
+          && d.createdAt == request.time
+          && d.memberUids == [uid]
+          && d.joinedAt.keys().toSet() == [uid].toSet()
+          && d.joinedAt[uid] == request.time;
       }
 
       function isSelfRemoval() {
+        let uid = request.auth.uid;
         return signedIn()
-          && request.auth.uid in resource.data.memberUids
-          && request.auth.uid != resource.data.ownerUid
-          && unchanged('ownerUid')
-          && unchanged('name')
-          && request.resource.data.memberUids ==
-             resource.data.memberUids.removeAll([request.auth.uid])
-          && request.resource.data.joinedAt.keys().toSet() ==
-             resource.data.joinedAt.keys().toSet().difference([request.auth.uid].toSet());
+          && uid in resource.data.memberUids
+          && uid != resource.data.ownerUid
+          && changedKeys().hasOnly(['memberUids', 'joinedAt'])
+          && request.resource.data.memberUids == resource.data.memberUids.removeAll([uid])
+          && request.resource.data.joinedAt.diff(resource.data.joinedAt).affectedKeys().hasOnly([uid])
+          && !(uid in request.resource.data.joinedAt);
       }
 
       allow read: if isMember(resource.data);
-
-      allow create: if signedIn()
-        && request.resource.data.ownerUid == request.auth.uid
-        && request.resource.data.memberUids == [request.auth.uid]
-        && request.resource.data.joinedAt.keys() == [request.auth.uid];
-
-      allow delete: if signedIn() && request.auth.uid == resource.data.ownerUid;
-
-      allow update: if (signedIn()
-                        && request.auth.uid == resource.data.ownerUid
-                        && unchanged('ownerUid'))
+      allow create: if signedIn() && validNewList();
+      allow delete: if isOwner();
+      allow update: if (isOwner() && changedKeys().hasOnly(['name', 'date']))
                     || isSelfRemoval();
 
       match /items/{itemId} {
@@ -51,8 +61,20 @@ service cloud.firestore {
           return get(/databases/$(database)/documents/lists/$(listId)).data;
         }
 
-        allow read: if isMember(parent());
-        allow write: if signedIn() && request.auth.uid == parent().ownerUid;
+        // Firestore does not delete subcollections with their parent, so an item
+        // can outlive its list. Binding it to the list's unforgeable createdAt
+        // stops a recreated list with the same id from inheriting it.
+        function sameEpoch(item) {
+          return item.listCreatedAt == parent().createdAt;
+        }
+
+        function isListOwner() {
+          return signedIn() && request.auth.uid == parent().ownerUid;
+        }
+
+        allow read: if isMember(parent()) && sameEpoch(resource.data);
+        allow create, update: if isListOwner() && sameEpoch(request.resource.data);
+        allow delete: if isListOwner() && sameEpoch(resource.data);
       }
     }
   }
