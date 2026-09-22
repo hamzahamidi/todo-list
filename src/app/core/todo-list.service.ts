@@ -39,8 +39,7 @@ export class TodoListService {
     );
   }
 
-  // The items rule reads listCreatedAt, and rules are not filters, so the query
-  // must constrain it or Firestore rejects the whole query.
+  // Rules are not filters: the items rule reads listCreatedAt, so the query must too.
   items$(listId: string, listCreatedAt: Timestamp): Observable<Item[]> {
     return collectionData(
       query(
@@ -83,8 +82,7 @@ export class TodoListService {
     return setDoc(doc(this.db, 'lists', listId, 'items', itemId), item);
   }
 
-  // updateDoc rather than setDoc: an edit to an item deleted elsewhere must fail,
-  // not silently recreate it.
+  // updateDoc, not setDoc: an edit to an item deleted elsewhere must fail.
   updateItem(listId: string, itemId: string, changes: ItemChanges): Promise<void> {
     return updateDoc(doc(this.db, 'lists', listId, 'items', itemId), { ...changes });
   }

@@ -8,8 +8,7 @@ import { FIREBASE_STORAGE } from './firebase.providers';
 export class PhotoService {
   private readonly storage = inject(FIREBASE_STORAGE);
 
-  // Each upload gets its own object, so replacing a photo never overwrites the one
-  // the item still points at until the item is updated.
+  // A fresh object per upload, so the item's current photo is never overwritten.
   async upload(
     listId: string,
     listCreatedAt: Timestamp,
@@ -21,8 +20,7 @@ export class PhotoService {
     return path;
   }
 
-  // Storage rules are not evaluated on a getDownloadURL token URL, so the bytes
-  // are fetched through the SDK and handed to the page as a blob URL.
+  // getBlob, not getDownloadURL: a token URL is never checked by the Storage rules.
   async objectUrl(photoPath: string): Promise<string> {
     const blob = await getBlob(ref(this.storage, photoPath));
     return URL.createObjectURL(blob);
