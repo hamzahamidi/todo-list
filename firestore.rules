@@ -1,8 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(list) {
+      return signedIn() && request.auth.uid in list.memberUids;
+    }
+
+    match /lists/{listId} {
+      function unchanged(field) {
+        return request.resource.data[field] == resource.data[field];
+      }
+
+      function isSelfRemoval() {
+        return signedIn()
+          && request.auth.uid in resource.data.memberUids
+          && request.auth.uid != resource.data.ownerUid
+          && unchanged('ownerUid')
+          && unchanged('name')
+          && request.resource.data.memberUids ==
+             resource.data.memberUids.removeAll([request.auth.uid])
+          && request.resource.data.joinedAt.keys().toSet() ==
+             resource.data.joinedAt.keys().toSet().difference([request.auth.uid].toSet());
+      }
+
+      allow read: if isMember(resource.data);
+
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.memberUids == [request.auth.uid]
+        && request.resource.data.joinedAt.keys() == [request.auth.uid];
+
+      allow delete: if signedIn() && request.auth.uid == resource.data.ownerUid;
+
+      allow update: if (signedIn()
+                        && request.auth.uid == resource.data.ownerUid
+                        && unchanged('ownerUid'))
+                    || isSelfRemoval();
     }
   }
 }
