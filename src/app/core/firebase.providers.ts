@@ -5,12 +5,14 @@ import {
 } from '@angular/core';
 import { FirebaseApp, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
-import { Database, getDatabase } from 'firebase/database';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { FirebaseStorage, getStorage } from 'firebase/storage';
 import { environment } from '../../environments/environment';
 
 export const FIREBASE_APP = new InjectionToken<FirebaseApp>('firebase.app');
 export const FIREBASE_AUTH = new InjectionToken<Auth>('firebase.auth');
-export const FIREBASE_DATABASE = new InjectionToken<Database>('firebase.database');
+export const FIRESTORE = new InjectionToken<Firestore>('firebase.firestore');
+export const FIREBASE_STORAGE = new InjectionToken<FirebaseStorage>('firebase.storage');
 
 export function provideFirebase(): EnvironmentProviders {
   return makeEnvironmentProviders([
@@ -24,8 +26,13 @@ export function provideFirebase(): EnvironmentProviders {
       deps: [FIREBASE_APP],
     },
     {
-      provide: FIREBASE_DATABASE,
-      useFactory: (app: FirebaseApp) => getDatabase(app),
+      provide: FIRESTORE,
+      useFactory: (app: FirebaseApp) => getFirestore(app),
+      deps: [FIREBASE_APP],
+    },
+    {
+      provide: FIREBASE_STORAGE,
+      useFactory: (app: FirebaseApp) => getStorage(app),
       deps: [FIREBASE_APP],
     },
   ]);

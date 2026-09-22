@@ -3,13 +3,13 @@
 export const environment = {
   production: true,
   firebase: {
-    apiKey: 'AIzaSyAzamPI7qF93z18oStf4b_iuyJ5ROhtTvo',
-    authDomain: 'm2gi-ionic-21b7b.firebaseapp.com',
-    databaseURL: 'https://m2gi-ionic-21b7b.firebaseio.com',
-    projectId: 'm2gi-ionic-21b7b',
-    storageBucket: 'm2gi-ionic-21b7b.appspot.com',
-    messagingSenderId: '588101161325',
+    apiKey: 'AIzaSyBwH6e_ae0cw-39GDeT1muzUhc18fqgK6Y',
+    authDomain: 'todo-list-f5305.firebaseapp.com',
+    projectId: 'todo-list-f5305',
+    storageBucket: 'todo-list-f5305.firebasestorage.app',
+    messagingSenderId: '176601468063',
+    appId: '1:176601468063:web:7b3fabef124c5a00bde6aa',
   },
   googleWebClientId:
-    '588101161325-f3p5ulsoe22ok3gbblq8itej4msbfvht.apps.googleusercontent.com',
+    '176601468063-bq9pk3g7gs7991j8i16b38pt837v160r.apps.googleusercontent.com',
 };

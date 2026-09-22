@@ -1,19 +1,19 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="backHref"></ion-back-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ todoList()?.name }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (todoList(); as list) {
-    @for (item of list.items | value; track item.id) {
+  @if (todoList()) {
+    @for (item of items(); track item.id) {
       <ion-card>
         <ion-card-content (click)="updateItem(item)">
-          @if (item.image; as image) {
-            <img [src]="image" [alt]="item.name" width="300" height="300" />
+          @if (photoUrl(item); as photo) {
+            <img [src]="photo" [alt]="item.name" width="300" height="300" />
           }
           <ion-card-title>
             <ion-row>

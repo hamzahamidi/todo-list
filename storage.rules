@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // epoch is createdAt as millis_nanos: Timestamp.seconds() in rules is the clock
+    // second, not epoch seconds. Lossless, so a recreated list never inherits objects.
+    match /lists/{listId}/{epoch}/{itemId}/{fileName} {
+      function list() {
+        return firestore.get(/databases/(default)/documents/lists/$(listId)).data;
+      }
+
+      function isCurrentEpoch() {
+        let t = list().createdAt;
+        return epoch == string(t.toMillis()) + '_' + string(t.nanos());
+      }
+
+      function isListOwner() {
+        return request.auth != null && isCurrentEpoch() && request.auth.uid == list().ownerUid;
+      }
+
+      allow read: if request.auth != null
+        && isCurrentEpoch()
+        && request.auth.uid in list().memberUids;
+
+      allow create, update: if isListOwner()
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+
+      allow delete: if isListOwner();
+    }
+  }
+}

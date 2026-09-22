@@ -29,13 +29,14 @@ in the native build.
 |---|---|
 | UI | Ionic 9 (standalone components) |
 | Framework | Angular 22 |
-| Backend | Firebase Realtime Database and Auth (modular SDK with `rxfire`) |
+| Backend | Firebase Auth, Cloud Firestore and Cloud Storage (modular SDK with `rxfire`) |
 | Native | Capacitor 8 |
 | Build | Angular CLI |
 
 # Getting started
 
-Requires Node.js 22 or newer.
+Requires Node.js 24 or newer. The tests also need Java 21 or newer for the Firebase
+emulators.
 
 ```
 npm install
@@ -55,6 +56,19 @@ Build artifacts are written to `www/`.
 
 Run `npm run lint` to check the sources.
 
+# Testing
+
+The Firestore and Cloud Storage security rules live in `firestore.rules` and
+`storage.rules`, and are tested against the Firebase emulators:
+
+```
+npm run test:rules
+npm run test:services
+```
+
+`test:rules` checks every allow and deny path. `test:services` replays the
+services' exact queries and writes as a signed in user under those rules.
+
 # Deployment
 
 Pushing to `master` runs [`deploy.yml`](.github/workflows/deploy.yml), which builds the
@@ -64,6 +78,13 @@ branch holds the built output.
 The build is served from a subdirectory, so it is built with `--base-href /todo-list/`.
 `index.html` is copied to `404.html` because GitHub Pages has no rewrite rule and the
 router needs every path to reach the app shell.
+
+The security rules are not part of that workflow. They deploy to the Firebase project
+named in `.firebaserc` with:
+
+```
+npx firebase deploy --only firestore,storage
+```
 
 # Running on Android
 

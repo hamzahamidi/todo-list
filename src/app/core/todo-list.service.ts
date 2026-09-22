@@ -1,67 +1,93 @@
 import { Injectable, inject } from '@angular/core';
-import { push, ref, remove, set, update } from 'firebase/database';
-import { listVal, objectVal } from 'rxfire/database';
-import { Observable, combineLatest, map, of } from 'rxjs';
-import { Item, TodoList } from '../models';
-import { FIREBASE_DATABASE } from './firebase.providers';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  query,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import { collectionData, docData } from 'rxfire/firestore';
+import { Observable, map, of } from 'rxjs';
+import { Item, ItemChanges, TodoList } from '../models';
+import { AuthService } from './auth.service';
+import { FIRESTORE } from './firebase.providers';
 
 @Injectable({ providedIn: 'root' })
 export class TodoListService {
-  private readonly db = inject(FIREBASE_DATABASE);
+  private readonly db = inject(FIRESTORE);
+  private readonly auth = inject(AuthService);
 
-  lists$(ownerUid: string): Observable<TodoList[]> {
-    return listVal<TodoList>(ref(this.db, listsPath(ownerUid)));
-  }
-
-  list$(ownerUid: string, listId: string): Observable<TodoList | null> {
-    return objectVal<TodoList>(ref(this.db, `${listsPath(ownerUid)}/${listId}`));
-  }
-
-  listsByIds$(ownerUid: string, listIds: string[]): Observable<TodoList[]> {
-    if (listIds.length === 0) {
+  lists$(): Observable<TodoList[]> {
+    const uid = this.auth.uid;
+    if (!uid) {
       return of([]);
     }
-    return combineLatest(listIds.map((id) => this.list$(ownerUid, id))).pipe(
-      // A list can be unshared while its id is still in the shared index.
-      map((lists) => lists.filter((list): list is TodoList => list !== null)),
+    return collectionData(
+      query(collection(this.db, 'lists'), where('memberUids', 'array-contains', uid)),
+      { idField: 'id' },
+    ) as Observable<TodoList[]>;
+  }
+
+  list$(listId: string): Observable<TodoList | null> {
+    return docData(doc(this.db, 'lists', listId), { idField: 'id' }).pipe(
+      map((list) => (list ? (list as TodoList) : null)),
     );
   }
 
-  async addList(ownerUid: string, name: string): Promise<void> {
-    const listRef = push(ref(this.db, listsPath(ownerUid)));
-    await set(listRef, { id: listRef.key, name, date: Date.now() });
+  // Rules are not filters: the items rule reads listCreatedAt, so the query must too.
+  items$(listId: string, listCreatedAt: Timestamp): Observable<Item[]> {
+    return collectionData(
+      query(
+        collection(this.db, 'lists', listId, 'items'),
+        where('listCreatedAt', '==', listCreatedAt),
+      ),
+      { idField: 'id' },
+    ) as Observable<Item[]>;
   }
 
-  deleteList(ownerUid: string, listId: string): Promise<void> {
-    return remove(ref(this.db, `${listsPath(ownerUid)}/${listId}`));
+  async createList(name: string): Promise<string> {
+    const uid = this.auth.uid;
+    if (!uid) {
+      throw new Error('No signed-in user');
+    }
+    const created = await addDoc(collection(this.db, 'lists'), {
+      ownerUid: uid,
+      name,
+      date: Date.now(),
+      createdAt: serverTimestamp(),
+      memberUids: [uid],
+      joinedAt: { [uid]: serverTimestamp() },
+    });
+    return created.id;
   }
 
-  renameList(ownerUid: string, listId: string, name: string): Promise<void> {
-    return update(ref(this.db, `${listsPath(ownerUid)}/${listId}`), { name });
+  renameList(listId: string, name: string): Promise<void> {
+    return updateDoc(doc(this.db, 'lists', listId), { name });
   }
 
-  async addItem(
-    ownerUid: string,
-    listId: string,
-    item: Omit<Item, 'id'>,
-  ): Promise<void> {
-    const itemRef = push(ref(this.db, itemsPath(ownerUid, listId)));
-    await set(itemRef, { ...item, id: itemRef.key });
+  deleteList(listId: string): Promise<void> {
+    return deleteDoc(doc(this.db, 'lists', listId));
   }
 
-  updateItem(ownerUid: string, listId: string, item: Item): Promise<void> {
-    return set(ref(this.db, `${itemsPath(ownerUid, listId)}/${item.id}`), item);
+  newItemId(listId: string): string {
+    return doc(collection(this.db, 'lists', listId, 'items')).id;
   }
 
-  deleteItem(ownerUid: string, listId: string, itemId: string): Promise<void> {
-    return remove(ref(this.db, `${itemsPath(ownerUid, listId)}/${itemId}`));
+  createItem(listId: string, itemId: string, item: Omit<Item, 'id'>): Promise<void> {
+    return setDoc(doc(this.db, 'lists', listId, 'items', itemId), item);
   }
-}
 
-function listsPath(uid: string): string {
-  return `/users/${uid}/todo-lists`;
-}
+  // updateDoc, not setDoc: an edit to an item deleted elsewhere must fail.
+  updateItem(listId: string, itemId: string, changes: ItemChanges): Promise<void> {
+    return updateDoc(doc(this.db, 'lists', listId, 'items', itemId), { ...changes });
+  }
 
-function itemsPath(uid: string, listId: string): string {
-  return `/users/${uid}/todo-lists/${listId}/items`;
+  deleteItem(listId: string, itemId: string): Promise<void> {
+    return deleteDoc(doc(this.db, 'lists', listId, 'items', itemId));
+  }
 }

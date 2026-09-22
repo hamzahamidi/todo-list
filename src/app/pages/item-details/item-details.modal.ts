@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   IonButton,
@@ -16,10 +24,11 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
+import type { Timestamp } from 'firebase/firestore';
 import { addIcons } from 'ionicons';
 import { camera, close, image as imageIcon, mic } from 'ionicons/icons';
-import { TodoListService } from '../../core';
-import { Item, newItem } from '../../models';
+import { PhotoService, TodoListService } from '../../core';
+import { Item, ItemChanges, newItem } from '../../models';
 import { AlertService, MediaService, SpeechService } from '../../shared';
 
 type VoiceField = 'name' | 'description';
@@ -48,25 +57,35 @@ type VoiceField = 'name' | 'description';
 })
 export class ItemDetailsModalComponent implements OnInit {
   /** Assigned by ModalController through componentProps, so these stay plain fields. */
-  ownerUid = '';
   listId = '';
+  listCreatedAt?: Timestamp;
   item?: Item;
 
   protected readonly name = signal('');
   protected readonly description = signal('');
   protected readonly state = signal(false);
-  protected readonly image = signal('');
+  protected readonly pendingPhoto = signal('');
+  protected readonly existingPhoto = signal('');
+  protected readonly image = computed(() => this.pendingPhoto() || this.existingPhoto());
 
   private date = 0;
+  private itemId = '';
 
   private readonly modalCtrl = inject(ModalController);
   private readonly todoLists = inject(TodoListService);
+  private readonly photos = inject(PhotoService);
   private readonly alert = inject(AlertService);
   private readonly media = inject(MediaService);
   private readonly speech = inject(SpeechService);
 
   constructor() {
     addIcons({ camera, close, image: imageIcon, mic });
+    inject(DestroyRef).onDestroy(() => {
+      const url = this.existingPhoto();
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -74,48 +93,35 @@ export class ItemDetailsModalComponent implements OnInit {
     this.name.set(seed.name);
     this.description.set(seed.description);
     this.state.set(seed.state);
-    this.image.set(seed.image ?? '');
     this.date = seed.date;
+    this.itemId = this.item?.id ?? this.todoLists.newItemId(this.listId);
+    const path = this.item?.photoPath;
+    if (path) {
+      void this.photos.objectUrl(path).then((url) => this.existingPhoto.set(url));
+    }
   }
 
   protected async addItem(): Promise<void> {
-    try {
-      await this.todoLists.addItem(this.ownerUid, this.listId, this.draft());
-      await this.alert.presentToast('Note succesfuly added');
-    } catch {
-      await this.alert.presentToast('Something wrong happened');
-    }
-    await this.dismiss(true);
+    await this.save(null, 'Note succesfuly added');
   }
 
   protected async updateItem(): Promise<void> {
-    const current = this.item;
-    if (!current) {
-      return;
+    if (this.item) {
+      await this.save(this.item, 'Note succesfuly updated');
     }
-    try {
-      await this.todoLists.updateItem(this.ownerUid, this.listId, {
-        ...this.draft(),
-        id: current.id,
-      });
-      await this.alert.presentToast('Note succesfuly updated');
-    } catch {
-      await this.alert.presentToast('Something wrong happened');
-    }
-    await this.dismiss(true);
   }
 
   protected async takePicture(): Promise<void> {
     const picture = await this.media.takePicture();
     if (picture) {
-      this.image.set(picture);
+      this.pendingPhoto.set(picture);
     }
   }
 
   protected async pickFromLibrary(): Promise<void> {
     const picture = await this.media.pickFromLibrary();
     if (picture) {
-      this.image.set(picture);
+      this.pendingPhoto.set(picture);
     }
   }
 
@@ -139,17 +145,42 @@ export class ItemDetailsModalComponent implements OnInit {
     await this.modalCtrl.dismiss(changed);
   }
 
-  private draft(): Omit<Item, 'id'> {
-    const draft: Omit<Item, 'id'> = {
+  // Firestore and Storage share no transaction: upload to a fresh object, write the
+  // item once, and remove the new object if that write fails.
+  private async save(existing: Item | null, successToast: string): Promise<void> {
+    const listCreatedAt = this.listCreatedAt;
+    if (!listCreatedAt) {
+      return;
+    }
+    const changes: ItemChanges = {
       name: this.name(),
       state: this.state(),
       description: this.description(),
       date: this.date,
     };
-    const image = this.image();
-    if (image) {
-      draft.image = image;
+    const pending = this.pendingPhoto();
+    let uploaded: string | undefined;
+    try {
+      if (pending) {
+        uploaded = await this.photos.upload(this.listId, listCreatedAt, this.itemId, pending);
+        changes.photoPath = uploaded;
+      }
+      if (existing) {
+        await this.todoLists.updateItem(this.listId, existing.id, changes);
+      } else {
+        await this.todoLists.createItem(this.listId, this.itemId, { ...changes, listCreatedAt });
+      }
+    } catch {
+      if (uploaded) {
+        await this.photos.removeQuietly(uploaded);
+      }
+      await this.alert.presentToast('Something wrong happened');
+      return;
     }
-    return draft;
+    if (uploaded && existing?.photoPath) {
+      await this.photos.removeQuietly(existing.photoPath);
+    }
+    await this.alert.presentToast(successToast);
+    await this.dismiss(true);
   }
 }
