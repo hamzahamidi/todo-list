@@ -8,7 +8,7 @@ import { withTestEnv } from '../helpers/emulator.ts';
 const OWNER = 'owner-uid';
 const DATA_URL = 'data:image/jpeg;base64,/9j/2wAB';
 
-test('the PhotoService path, upload, read and delete are allowed end to end', async () => {
+test('the PhotoService versioned path, upload, read and delete are allowed end to end', async () => {
   await withTestEnv(async (env) => {
     const db = env.authenticatedContext(OWNER).firestore();
     await setDoc(doc(db, 'lists/L'), {
@@ -22,12 +22,16 @@ test('the PhotoService path, upload, read and delete are allowed end to end', as
     const createdAt = (await getDoc(doc(db, 'lists/L'))).get('createdAt');
 
     const storage = env.authenticatedContext(OWNER).storage();
-    const path = `lists/L/${epochOf(createdAt)}/item-1/photo.jpg`;
-    await uploadString(ref(storage, path), DATA_URL, 'data_url');
+    const first = `lists/L/${epochOf(createdAt)}/item-1/${crypto.randomUUID()}.jpg`;
+    const second = `lists/L/${epochOf(createdAt)}/item-1/${crypto.randomUUID()}.jpg`;
+    await uploadString(ref(storage, first), DATA_URL, 'data_url');
+    await uploadString(ref(storage, second), DATA_URL, 'data_url');
 
-    const bytes = new Uint8Array(await getBytes(ref(storage, path)));
+    const bytes = new Uint8Array(await getBytes(ref(storage, second)));
     assert.deepEqual([...bytes.slice(0, 3)], [0xff, 0xd8, 0xff]);
+    assert.notEqual(first, second);
 
-    await deleteObject(ref(storage, path));
+    await deleteObject(ref(storage, first));
+    await deleteObject(ref(storage, second));
   });
 });

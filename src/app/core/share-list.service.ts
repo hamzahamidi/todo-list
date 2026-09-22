@@ -4,6 +4,7 @@ import {
   collection,
   deleteField,
   doc,
+  FieldPath,
   query,
   updateDoc,
   where,
@@ -41,10 +42,15 @@ export class ShareListService {
     if (!uid) {
       return Promise.reject(new Error('No signed-in user'));
     }
-    return updateDoc(doc(this.db, 'lists', listId), {
-      memberUids: arrayRemove(uid),
-      [`joinedAt.${uid}`]: deleteField(),
-    });
+    // A FieldPath keeps the uid one literal segment; a dotted string would split a
+    // uid containing dots into nested fields and the rule would reject the write.
+    return updateDoc(
+      doc(this.db, 'lists', listId),
+      'memberUids',
+      arrayRemove(uid),
+      new FieldPath('joinedAt', uid),
+      deleteField(),
+    );
   }
 
   private myLists$(uid: string): Observable<TodoList[]> {

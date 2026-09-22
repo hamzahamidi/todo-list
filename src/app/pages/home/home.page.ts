@@ -29,7 +29,7 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { add, create, share, trash } from 'ionicons/icons';
-import { AuthService, TodoListService } from '../../core';
+import { TodoListService } from '../../core';
 import { CustomAlert, TodoList } from '../../models';
 import { DateCreatedPipe } from '../../pipes';
 import { AlertService, EmptyListComponent, NavBarComponent } from '../../shared';
@@ -69,13 +69,10 @@ import { AlertService, EmptyListComponent, NavBarComponent } from '../../shared'
 })
 export class HomePage {
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
   private readonly todoListService = inject(TodoListService);
   private readonly alert = inject(AlertService);
 
-  private readonly ownerUid = this.auth.uid ?? '';
-
-  protected readonly lists = toSignal(this.todoListService.lists$(this.ownerUid));
+  protected readonly lists = toSignal(this.todoListService.lists$());
   protected readonly title = 'My Notes';
   protected readonly cardOrList = signal(false);
   protected readonly searchBarHidden = signal(true);
@@ -118,7 +115,7 @@ export class HomePage {
       yesText: 'Save',
       yesToastThen: 'List succesfuly added',
       yesToastCatch: 'Something wrong happened',
-      yesFunction: (data) => this.todoListService.createList(this.ownerUid, data?.['name'] ?? ''),
+      yesFunction: (data) => this.todoListService.createList(data?.['name'] ?? ''),
     };
     void this.alert.createAlert(alert);
   }

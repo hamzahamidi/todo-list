@@ -28,7 +28,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { addIcons } from 'ionicons';
 import { camera, close, image as imageIcon, mic } from 'ionicons/icons';
 import { PhotoService, TodoListService } from '../../core';
-import { Item, newItem } from '../../models';
+import { Item, ItemChanges, newItem } from '../../models';
 import { AlertService, MediaService, SpeechService } from '../../shared';
 
 type VoiceField = 'name' | 'description';
@@ -69,6 +69,7 @@ export class ItemDetailsModalComponent implements OnInit {
   protected readonly image = computed(() => this.pendingPhoto() || this.existingPhoto());
 
   private date = 0;
+  private itemId = '';
 
   private readonly modalCtrl = inject(ModalController);
   private readonly todoLists = inject(TodoListService);
@@ -93,6 +94,7 @@ export class ItemDetailsModalComponent implements OnInit {
     this.description.set(seed.description);
     this.state.set(seed.state);
     this.date = seed.date;
+    this.itemId = this.item?.id ?? this.todoLists.newItemId(this.listId);
     const path = this.item?.photoPath;
     if (path) {
       void this.photos.objectUrl(path).then((url) => this.existingPhoto.set(url));
@@ -143,34 +145,42 @@ export class ItemDetailsModalComponent implements OnInit {
     await this.modalCtrl.dismiss(changed);
   }
 
+  // Firestore and Storage share no transaction: upload to a fresh object, write the
+  // item once, and remove the new object if that write fails.
   private async save(existing: Item | null, successToast: string): Promise<void> {
     const listCreatedAt = this.listCreatedAt;
     if (!listCreatedAt) {
       return;
     }
-    const fields = {
+    const changes: ItemChanges = {
       name: this.name(),
       state: this.state(),
       description: this.description(),
       date: this.date,
     };
+    const pending = this.pendingPhoto();
+    let uploaded: string | undefined;
     try {
-      const id = existing?.id ?? (await this.todoLists.addItem(this.listId, listCreatedAt, fields));
-      const pending = this.pendingPhoto();
-      const photoPath = pending
-        ? await this.photos.upload(this.listId, listCreatedAt, id, pending)
-        : existing?.photoPath;
-      if (existing || photoPath) {
-        const item: Item = { ...fields, id, listCreatedAt };
-        if (photoPath) {
-          item.photoPath = photoPath;
-        }
-        await this.todoLists.updateItem(this.listId, item);
+      if (pending) {
+        uploaded = await this.photos.upload(this.listId, listCreatedAt, this.itemId, pending);
+        changes.photoPath = uploaded;
       }
-      await this.alert.presentToast(successToast);
+      if (existing) {
+        await this.todoLists.updateItem(this.listId, existing.id, changes);
+      } else {
+        await this.todoLists.createItem(this.listId, this.itemId, { ...changes, listCreatedAt });
+      }
     } catch {
+      if (uploaded) {
+        await this.photos.removeQuietly(uploaded);
+      }
       await this.alert.presentToast('Something wrong happened');
+      return;
     }
+    if (uploaded && existing?.photoPath) {
+      await this.photos.removeQuietly(existing.photoPath);
+    }
+    await this.alert.presentToast(successToast);
     await this.dismiss(true);
   }
 }

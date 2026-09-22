@@ -20,6 +20,10 @@ export interface TodoList {
   joinedAt: Record<string, Timestamp>;
 }
 
+export type ItemChanges = Pick<Item, 'name' | 'state' | 'description' | 'date'> & {
+  photoPath?: string;
+};
+
 export function newItem(): Omit<Item, 'id' | 'listCreatedAt'> {
   return { name: '', state: false, description: '', date: Date.now() };
 }

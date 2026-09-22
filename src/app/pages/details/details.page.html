@@ -12,7 +12,7 @@
     @for (item of items(); track item.id) {
       <ion-card>
         <ion-card-content (click)="updateItem(item)">
-          @if (photoUrls()[item.id]; as photo) {
+          @if (photoUrl(item); as photo) {
             <img [src]="photo" [alt]="item.name" width="300" height="300" />
           }
           <ion-card-title>

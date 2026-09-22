@@ -8,13 +8,15 @@ import { FIREBASE_STORAGE } from './firebase.providers';
 export class PhotoService {
   private readonly storage = inject(FIREBASE_STORAGE);
 
+  // Each upload gets its own object, so replacing a photo never overwrites the one
+  // the item still points at until the item is updated.
   async upload(
     listId: string,
     listCreatedAt: Timestamp,
     itemId: string,
     dataUrl: string,
   ): Promise<string> {
-    const path = `lists/${listId}/${epochOf(listCreatedAt)}/${itemId}/photo.jpg`;
+    const path = `lists/${listId}/${epochOf(listCreatedAt)}/${itemId}/${crypto.randomUUID()}.jpg`;
     await uploadString(ref(this.storage, path), dataUrl, 'data_url');
     return path;
   }
@@ -28,5 +30,13 @@ export class PhotoService {
 
   remove(photoPath: string): Promise<void> {
     return deleteObject(ref(this.storage, photoPath));
+  }
+
+  async removeQuietly(photoPath: string): Promise<void> {
+    try {
+      await this.remove(photoPath);
+    } catch {
+      return;
+    }
   }
 }

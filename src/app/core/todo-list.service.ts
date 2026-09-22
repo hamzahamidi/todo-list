@@ -12,15 +12,21 @@ import {
   where,
 } from 'firebase/firestore';
 import { collectionData, docData } from 'rxfire/firestore';
-import { Observable, map } from 'rxjs';
-import { Item, TodoList } from '../models';
+import { Observable, map, of } from 'rxjs';
+import { Item, ItemChanges, TodoList } from '../models';
+import { AuthService } from './auth.service';
 import { FIRESTORE } from './firebase.providers';
 
 @Injectable({ providedIn: 'root' })
 export class TodoListService {
   private readonly db = inject(FIRESTORE);
+  private readonly auth = inject(AuthService);
 
-  lists$(uid: string): Observable<TodoList[]> {
+  lists$(): Observable<TodoList[]> {
+    const uid = this.auth.uid;
+    if (!uid) {
+      return of([]);
+    }
     return collectionData(
       query(collection(this.db, 'lists'), where('memberUids', 'array-contains', uid)),
       { idField: 'id' },
@@ -45,14 +51,18 @@ export class TodoListService {
     ) as Observable<Item[]>;
   }
 
-  async createList(ownerUid: string, name: string): Promise<string> {
+  async createList(name: string): Promise<string> {
+    const uid = this.auth.uid;
+    if (!uid) {
+      throw new Error('No signed-in user');
+    }
     const created = await addDoc(collection(this.db, 'lists'), {
-      ownerUid,
+      ownerUid: uid,
       name,
       date: Date.now(),
       createdAt: serverTimestamp(),
-      memberUids: [ownerUid],
-      joinedAt: { [ownerUid]: serverTimestamp() },
+      memberUids: [uid],
+      joinedAt: { [uid]: serverTimestamp() },
     });
     return created.id;
   }
@@ -65,21 +75,18 @@ export class TodoListService {
     return deleteDoc(doc(this.db, 'lists', listId));
   }
 
-  async addItem(
-    listId: string,
-    listCreatedAt: Timestamp,
-    item: Omit<Item, 'id' | 'listCreatedAt'>,
-  ): Promise<string> {
-    const created = await addDoc(collection(this.db, 'lists', listId, 'items'), {
-      ...item,
-      listCreatedAt,
-    });
-    return created.id;
+  newItemId(listId: string): string {
+    return doc(collection(this.db, 'lists', listId, 'items')).id;
   }
 
-  updateItem(listId: string, item: Item): Promise<void> {
-    const { id, ...rest } = item;
-    return setDoc(doc(this.db, 'lists', listId, 'items', id), rest);
+  createItem(listId: string, itemId: string, item: Omit<Item, 'id'>): Promise<void> {
+    return setDoc(doc(this.db, 'lists', listId, 'items', itemId), item);
+  }
+
+  // updateDoc rather than setDoc: an edit to an item deleted elsewhere must fail,
+  // not silently recreate it.
+  updateItem(listId: string, itemId: string, changes: ItemChanges): Promise<void> {
+    return updateDoc(doc(this.db, 'lists', listId, 'items', itemId), { ...changes });
   }
 
   deleteItem(listId: string, itemId: string): Promise<void> {

@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -28,10 +29,9 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
-import { FirebaseError } from 'firebase/app';
 import { addIcons } from 'ionicons';
 import { add, create, trash } from 'ionicons/icons';
-import { of, switchMap } from 'rxjs';
+import { of, shareReplay, switchMap } from 'rxjs';
 import { PhotoService, TodoListService } from '../../core';
 import { CustomAlert, Item, TodoList } from '../../models';
 import { DateCreatedPipe, FinishedPipe } from '../../pipes';
@@ -72,7 +72,9 @@ export class DetailsPage {
   private readonly modalCtrl = inject(ModalController);
 
   private readonly listId = inject(ActivatedRoute).snapshot.paramMap.get('listId') ?? '';
-  private readonly list$ = this.todoListService.list$(this.listId);
+  private readonly list$ = this.todoListService
+    .list$(this.listId)
+    .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   protected readonly todoList = toSignal(this.list$, { initialValue: null });
   protected readonly items = toSignal(
@@ -83,18 +85,25 @@ export class DetailsPage {
     ),
     { initialValue: [] },
   );
-  protected readonly photoUrls = signal<Record<string, string>>({});
+
+  private readonly photoUrls = signal<Record<string, string>>({});
+  private readonly loadingPhotos = new Set<string>();
+  private destroyed = false;
 
   constructor() {
     addIcons({ trash, create, add });
     effect(() => {
-      for (const item of this.items()) {
-        void this.loadPhoto(item);
-      }
+      const wanted = this.photoPaths(this.items());
+      untracked(() => this.syncPhotos(wanted));
     });
     inject(DestroyRef).onDestroy(() => {
+      this.destroyed = true;
       Object.values(this.photoUrls()).forEach((url) => URL.revokeObjectURL(url));
     });
+  }
+
+  protected photoUrl(item: Item): string | undefined {
+    return item.photoPath ? this.photoUrls()[item.photoPath] : undefined;
   }
 
   protected addItem(): void {
@@ -119,23 +128,49 @@ export class DetailsPage {
     void this.alert.createAlert(alert);
   }
 
+  // The item goes first: a failed photo delete then leaves an unreferenced object,
+  // not a visible item whose photo is missing.
   private async removeItem(item: Item): Promise<void> {
-    if (item.photoPath) {
-      await this.photos.remove(item.photoPath).catch((error: unknown) => {
-        if (!(error instanceof FirebaseError && error.code === 'storage/object-not-found')) {
-          throw error;
-        }
-      });
-    }
     await this.todoListService.deleteItem(this.listId, item.id);
+    if (item.photoPath) {
+      await this.photos.removeQuietly(item.photoPath);
+    }
   }
 
-  private async loadPhoto(item: Item): Promise<void> {
-    if (!item.photoPath || this.photoUrls()[item.id]) {
-      return;
+  private photoPaths(items: Item[]): Set<string> {
+    return new Set(items.flatMap((item) => (item.photoPath ? [item.photoPath] : [])));
+  }
+
+  private syncPhotos(wanted: Set<string>): void {
+    const current = this.photoUrls();
+    const stale = Object.keys(current).filter((path) => !wanted.has(path));
+    if (stale.length > 0) {
+      stale.forEach((path) => URL.revokeObjectURL(current[path]));
+      this.photoUrls.set(
+        Object.fromEntries(Object.entries(current).filter(([path]) => wanted.has(path))),
+      );
     }
-    const url = await this.photos.objectUrl(item.photoPath);
-    this.photoUrls.update((urls) => ({ ...urls, [item.id]: url }));
+    for (const path of wanted) {
+      if (!current[path] && !this.loadingPhotos.has(path)) {
+        void this.loadPhoto(path);
+      }
+    }
+  }
+
+  private async loadPhoto(path: string): Promise<void> {
+    this.loadingPhotos.add(path);
+    try {
+      const url = await this.photos.objectUrl(path);
+      if (this.destroyed || !this.photoPaths(this.items()).has(path)) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      this.photoUrls.update((urls) => ({ ...urls, [path]: url }));
+    } catch {
+      return;
+    } finally {
+      this.loadingPhotos.delete(path);
+    }
   }
 
   private async openItemModal(item?: Item): Promise<void> {
