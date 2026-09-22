@@ -13,7 +13,7 @@
     "lint": "ng lint",
     "sync": "cap sync",
     "emulators": "firebase emulators:start --only firestore,storage,auth",
-    "test:rules": "firebase emulators:exec --only firestore,storage \"node --test 'test/rules/**/*.test.ts'\""
+    "test:rules": "firebase emulators:exec --only firestore,storage \"node --test --test-concurrency=1 'test/rules/**/*.test.ts'\""
   },
   "dependencies": {
     "@angular/common": "22.1.7",
