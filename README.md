@@ -29,7 +29,7 @@ in the native build.
 |---|---|
 | UI | Ionic 9 (standalone components) |
 | Framework | Angular 22 |
-| Backend | Firebase Realtime Database and Auth (modular SDK with `rxfire`) |
+| Backend | Firebase Auth, Cloud Firestore and Cloud Storage (modular SDK with `rxfire`) |
 | Native | Capacitor 8 |
 | Build | Angular CLI |
 
@@ -78,6 +78,13 @@ branch holds the built output.
 The build is served from a subdirectory, so it is built with `--base-href /todo-list/`.
 `index.html` is copied to `404.html` because GitHub Pages has no rewrite rule and the
 router needs every path to reach the app shell.
+
+The security rules are not part of that workflow. They deploy to the Firebase project
+named in `.firebaserc` with:
+
+```
+npx firebase deploy --only firestore,storage
+```
 
 # Running on Android
 
