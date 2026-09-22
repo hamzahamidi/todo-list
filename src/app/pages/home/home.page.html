@@ -1,5 +1,5 @@
 <app-nav-bar
-  [title]="title()"
+  [title]="title"
   [enabledChangeDisplay]="true"
   (changeDisplayed)="toggleDisplay()"
   (clickSearch)="toggleSearchBar()"
@@ -50,25 +50,16 @@
                 <ion-icon slot="start" name="create"></ion-icon>
                 Edit name
               </ion-item-option>
-              @if (!isShared) {
-                <ion-item-option color="success" (click)="shareTodoList(todoList)">
-                  <ion-icon slot="start" name="share"></ion-icon>
-                  Share
-                </ion-item-option>
-              }
+              <ion-item-option color="success" (click)="shareTodoList(todoList)">
+                <ion-icon slot="start" name="share"></ion-icon>
+                Share
+              </ion-item-option>
             </ion-item-options>
             <ion-item-options side="end">
-              @if (isShared) {
-                <ion-item-option color="danger" (click)="unshareList(todoList)">
-                  <ion-icon slot="start" name="trash"></ion-icon>
-                  Unshare
-                </ion-item-option>
-              } @else {
-                <ion-item-option color="danger" (click)="deleteList(todoList)">
-                  <ion-icon slot="start" name="trash"></ion-icon>
-                  Delete
-                </ion-item-option>
-              }
+              <ion-item-option color="danger" (click)="deleteList(todoList)">
+                <ion-icon slot="start" name="trash"></ion-icon>
+                Delete
+              </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
         }
@@ -82,43 +73,18 @@
             </h2>
           </ion-card-header>
           <ion-card-content (click)="goToDetails(todoList)">
-            <h5>List Summary</h5>
-            @if (todoList.items) {
-              <div class="ion-padding">
-                <ion-list>
-                  @for (item of (todoList.items | value); track item.id) {
-                    <ion-item>
-                      <span [class.strike]="item.state">{{ item.name }}</span>
-                    </ion-item>
-                  }
-                </ion-list>
-              </div>
-            } @else {
-              <div class="ion-padding">
-                <h3 class="ion-text-center">
-                  <ion-text color="gray">
-                    <i>
-                      Click on
-                      <ion-text color="warning">the list</ion-text> to Add your first Task
-                    </i>
-                  </ion-text>
-                </h3>
-              </div>
-            }
+            <h3 class="ion-text-center">
+              <ion-text color="gray">
+                <i>Click on <ion-text color="warning">the list</ion-text> to see its tasks</i>
+              </ion-text>
+            </h3>
           </ion-card-content>
           <ion-row class="ion-justify-content-around">
             <ion-col size="3">
-              @if (isShared) {
-                <ion-button fill="clear" size="small" color="danger" (click)="unshareList(todoList)">
-                  <ion-icon slot="start" name="trash"></ion-icon>
-                  Unshare
-                </ion-button>
-              } @else {
-                <ion-button fill="clear" size="small" color="danger" (click)="deleteList(todoList)">
-                  <ion-icon slot="start" name="trash"></ion-icon>
-                  Delete
-                </ion-button>
-              }
+              <ion-button fill="clear" size="small" color="danger" (click)="deleteList(todoList)">
+                <ion-icon slot="start" name="trash"></ion-icon>
+                Delete
+              </ion-button>
             </ion-col>
             <ion-col size="4">
               <ion-button fill="clear" size="small" color="warning" (click)="renameList(todoList)">
@@ -126,19 +92,12 @@
                 Edit name
               </ion-button>
             </ion-col>
-            @if (!isShared) {
-              <ion-col size="4">
-                <ion-button
-                  fill="clear"
-                  size="small"
-                  color="success"
-                  (click)="shareTodoList(todoList)"
-                >
-                  <ion-icon slot="start" name="share"></ion-icon>
-                  Share
-                </ion-button>
-              </ion-col>
-            }
+            <ion-col size="4">
+              <ion-button fill="clear" size="small" color="success" (click)="shareTodoList(todoList)">
+                <ion-icon slot="start" name="share"></ion-icon>
+                Share
+              </ion-button>
+            </ion-col>
             <ion-col size="3" class="ion-align-self-center ion-text-center">
               <ion-note> {{ todoList.date | dateCreated }} </ion-note>
             </ion-col>
@@ -150,11 +109,9 @@
     <ion-spinner></ion-spinner>
   }
 
-  @if (!isShared) {
-    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-      <ion-fab-button color="secondary" (click)="addList()">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-  }
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button color="secondary" (click)="addList()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

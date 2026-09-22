@@ -9,10 +9,9 @@
       <ion-label>Users who share with me</ion-label>
     </ion-item-divider>
     @if (sharedUsers(); as entries) {
-      @for (entry of entries; track entry.uid) {
-        @if (entry.user$ | async; as user) {
+      @for (user of entries; track user.uid) {
           <ion-item-sliding>
-            <ion-item [button]="true" (click)="goToLists(user)">
+            <ion-item>
               <ion-avatar slot="start">
                 @if (user.photoURL) {
                   <img [src]="user.photoURL" alt="avatar" />
@@ -34,13 +33,12 @@
               </ion-item-option>
             </ion-item-options>
             <ion-item-options side="end">
-              <ion-item-option color="danger" (click)="deleteUser(user)">
+              <ion-item-option color="danger" (click)="deleteUser()">
                 <ion-icon slot="start" name="trash"></ion-icon>
                 Delete
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
-        }
       } @empty {
         <app-empty-list
           icon="people"

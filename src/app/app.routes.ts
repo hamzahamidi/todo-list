@@ -14,12 +14,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home.page').then((m) => m.HomePage),
   },
   {
-    path: 'home/:ownerUid',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/home/home.page').then((m) => m.HomePage),
-  },
-  {
-    path: 'details/:ownerUid/:listId',
+    path: 'details/:listId',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/details/details.page').then((m) => m.DetailsPage),
   },

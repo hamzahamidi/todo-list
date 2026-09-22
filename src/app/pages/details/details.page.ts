@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -21,11 +28,13 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
+import { FirebaseError } from 'firebase/app';
 import { addIcons } from 'ionicons';
 import { add, create, trash } from 'ionicons/icons';
-import { AuthService, TodoListService } from '../../core';
-import { CustomAlert, Item } from '../../models';
-import { DateCreatedPipe, FinishedPipe, ValuePipe } from '../../pipes';
+import { of, switchMap } from 'rxjs';
+import { PhotoService, TodoListService } from '../../core';
+import { CustomAlert, Item, TodoList } from '../../models';
+import { DateCreatedPipe, FinishedPipe } from '../../pipes';
 import { AlertService, EmptyListComponent } from '../../shared';
 import { ItemDetailsModalComponent } from '../item-details/item-details.modal';
 
@@ -54,29 +63,38 @@ import { ItemDetailsModalComponent } from '../item-details/item-details.modal';
     EmptyListComponent,
     DateCreatedPipe,
     FinishedPipe,
-    ValuePipe,
   ],
 })
 export class DetailsPage {
-  private readonly route = inject(ActivatedRoute);
-  private readonly auth = inject(AuthService);
   private readonly todoListService = inject(TodoListService);
+  private readonly photos = inject(PhotoService);
   private readonly alert = inject(AlertService);
   private readonly modalCtrl = inject(ModalController);
 
-  private readonly ownerUid = this.route.snapshot.paramMap.get('ownerUid') ?? '';
-  private readonly listId = this.route.snapshot.paramMap.get('listId') ?? '';
+  private readonly listId = inject(ActivatedRoute).snapshot.paramMap.get('listId') ?? '';
+  private readonly list$ = this.todoListService.list$(this.listId);
 
-  protected readonly backHref =
-    this.ownerUid && this.ownerUid !== this.auth.uid ? `/home/${this.ownerUid}` : '/home';
-
-  protected readonly todoList = toSignal(
-    this.todoListService.list$(this.ownerUid, this.listId),
-    { initialValue: null },
+  protected readonly todoList = toSignal(this.list$, { initialValue: null });
+  protected readonly items = toSignal(
+    this.list$.pipe(
+      switchMap((list) =>
+        list ? this.todoListService.items$(this.listId, list.createdAt) : of<Item[]>([]),
+      ),
+    ),
+    { initialValue: [] },
   );
+  protected readonly photoUrls = signal<Record<string, string>>({});
 
   constructor() {
     addIcons({ trash, create, add });
+    effect(() => {
+      for (const item of this.items()) {
+        void this.loadPhoto(item);
+      }
+    });
+    inject(DestroyRef).onDestroy(() => {
+      Object.values(this.photoUrls()).forEach((url) => URL.revokeObjectURL(url));
+    });
   }
 
   protected addItem(): void {
@@ -96,16 +114,38 @@ export class DetailsPage {
       yesText: 'Yes',
       yesToastThen: 'Note succesfuly deleted',
       yesToastCatch: 'Something wrong happened',
-      yesFunction: () =>
-        this.todoListService.deleteItem(this.ownerUid, this.listId, item.id),
+      yesFunction: () => this.removeItem(item),
     };
     void this.alert.createAlert(alert);
   }
 
+  private async removeItem(item: Item): Promise<void> {
+    if (item.photoPath) {
+      await this.photos.remove(item.photoPath).catch((error: unknown) => {
+        if (!(error instanceof FirebaseError && error.code === 'storage/object-not-found')) {
+          throw error;
+        }
+      });
+    }
+    await this.todoListService.deleteItem(this.listId, item.id);
+  }
+
+  private async loadPhoto(item: Item): Promise<void> {
+    if (!item.photoPath || this.photoUrls()[item.id]) {
+      return;
+    }
+    const url = await this.photos.objectUrl(item.photoPath);
+    this.photoUrls.update((urls) => ({ ...urls, [item.id]: url }));
+  }
+
   private async openItemModal(item?: Item): Promise<void> {
+    const list: TodoList | null = this.todoList();
+    if (!list) {
+      return;
+    }
     const modal = await this.modalCtrl.create({
       component: ItemDetailsModalComponent,
-      componentProps: { ownerUid: this.ownerUid, listId: this.listId, item },
+      componentProps: { listId: this.listId, listCreatedAt: list.createdAt, item },
     });
     await modal.present();
     await modal.onDidDismiss();

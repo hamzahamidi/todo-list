@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -30,9 +29,7 @@ import {
 import { addIcons } from 'ionicons';
 import { create, peopleCircle, qrCode, share, trash } from 'ionicons/icons';
 import QRCode from 'qrcode';
-import { map } from 'rxjs';
 import { AuthService, ShareListService } from '../../core';
-import { CustomAlert, User } from '../../models';
 import { AlertService, EmptyListComponent, NavBarComponent } from '../../shared';
 
 type SharePanel = 'shared-users' | 'qr-scanner';
@@ -43,7 +40,6 @@ type SharePanel = 'shared-users' | 'qr-scanner';
   templateUrl: './share-my-notes.page.html',
   styleUrl: './share-my-notes.page.scss',
   imports: [
-    AsyncPipe,
     NavBarComponent,
     EmptyListComponent,
     IonContent,
@@ -74,11 +70,7 @@ export class ShareMyNotesPage {
   protected readonly panel = signal<SharePanel>(this.listId ? 'qr-scanner' : 'shared-users');
   protected readonly searchVisible = signal(false);
 
-  protected readonly sharedUsers = toSignal(
-    this.shareList
-      .uidsIShareWith$()
-      .pipe(map((uids) => uids.map((uid) => ({ uid, user$: this.shareList.sharedUser$(uid) })))),
-  );
+  protected readonly sharedUsers = toSignal(this.shareList.iShareWith$());
 
   constructor() {
     addIcons({ peopleCircle, qrCode, create, share, trash });
@@ -94,18 +86,8 @@ export class ShareMyNotesPage {
     this.searchVisible.update((visible) => !visible);
   }
 
-  protected deleteUser(user: User): void {
-    const alert: CustomAlert = {
-      title: 'Stop sharing',
-      message: `Are you sure you want to stop sharing with ${user.displayName}?`,
-      inputs: [],
-      noText: 'Cancel',
-      yesText: 'Yes',
-      yesToastThen: 'Shared User deleted',
-      yesToastCatch: 'Something wrong happened',
-      yesFunction: () => this.shareList.deleteSharedUser(user, false),
-    };
-    void this.alerts.createAlert(alert);
+  protected deleteUser(): void {
+    void this.alerts.presentToast('Sharing is being rebuilt');
   }
 
   private renderQrCode(): void {
