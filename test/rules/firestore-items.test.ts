@@ -14,6 +14,7 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { withTestEnv } from '../helpers/emulator.ts';
@@ -123,6 +124,45 @@ test('an item under a missing list is denied', async () => {
   await withTestEnv(async (env) => {
     const db = env.authenticatedContext(OWNER).firestore();
     await assertFails(getDoc(doc(db, 'lists/nope/items/item-1')));
+  });
+});
+
+async function recreateAsStranger(env: RulesTestEnvironment): Promise<Timestamp> {
+  const owner = env.authenticatedContext(OWNER).firestore();
+  await assertSucceeds(deleteDoc(doc(owner, 'lists/list-1')));
+  const stranger = env.authenticatedContext(STRANGER).firestore();
+  await assertSucceeds(
+    setDoc(doc(stranger, 'lists/list-1'), {
+      ownerUid: STRANGER,
+      name: 'mine now',
+      date: 3000,
+      createdAt: serverTimestamp(),
+      memberUids: [STRANGER],
+      joinedAt: { [STRANGER]: serverTimestamp() },
+    }),
+  );
+  return (await getDoc(doc(stranger, 'lists/list-1'))).get('createdAt');
+}
+
+test('a recreated owner cannot rebind an orphaned item with a partial update', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const newEpoch = await recreateAsStranger(env);
+    const stranger = env.authenticatedContext(STRANGER).firestore();
+    await assertFails(
+      updateDoc(doc(stranger, 'lists/list-1/items/item-1'), { listCreatedAt: newEpoch }),
+    );
+  });
+});
+
+test('a recreated owner cannot overwrite an orphaned item', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const newEpoch = await recreateAsStranger(env);
+    const stranger = env.authenticatedContext(STRANGER).firestore();
+    await assertFails(
+      setDoc(doc(stranger, 'lists/list-1/items/item-1'), { ...ITEM, listCreatedAt: newEpoch }),
+    );
   });
 });
 

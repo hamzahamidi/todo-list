@@ -1,15 +1,16 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // The epoch segment is the list's createdAt in milliseconds. Objects outlive a
-    // deleted list, so without it a recreated list with the same id would inherit them.
+    // epoch is createdAt as millis_nanos: Timestamp.seconds() in rules is the clock
+    // second, not epoch seconds. Lossless, so a recreated list never inherits objects.
     match /lists/{listId}/{epoch}/{itemId}/{fileName} {
       function list() {
         return firestore.get(/databases/(default)/documents/lists/$(listId)).data;
       }
 
       function isCurrentEpoch() {
-        return epoch == string(list().createdAt.toMillis());
+        let t = list().createdAt;
+        return epoch == string(t.toMillis()) + '_' + string(t.nanos());
       }
 
       function isListOwner() {

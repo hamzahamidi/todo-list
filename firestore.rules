@@ -50,10 +50,15 @@ service cloud.firestore {
           && !(uid in request.resource.data.joinedAt);
       }
 
+      function validMutableFields() {
+        return request.resource.data.name is string
+          && request.resource.data.date is number;
+      }
+
       allow read: if isMember(resource.data);
       allow create: if signedIn() && validNewList();
       allow delete: if isOwner();
-      allow update: if (isOwner() && changedKeys().hasOnly(['name', 'date']))
+      allow update: if (isOwner() && changedKeys().hasOnly(['name', 'date']) && validMutableFields())
                     || isSelfRemoval();
 
       match /items/{itemId} {
@@ -73,7 +78,10 @@ service cloud.firestore {
         }
 
         allow read: if isMember(parent()) && sameEpoch(resource.data);
-        allow create, update: if isListOwner() && sameEpoch(request.resource.data);
+        allow create: if isListOwner() && sameEpoch(request.resource.data);
+        allow update: if isListOwner()
+          && sameEpoch(resource.data)
+          && sameEpoch(request.resource.data);
         allow delete: if isListOwner() && sameEpoch(resource.data);
       }
     }

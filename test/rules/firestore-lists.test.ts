@@ -12,10 +12,12 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   serverTimestamp,
   setDoc,
   Timestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 import { withTestEnv } from '../helpers/emulator.ts';
 
@@ -76,6 +78,55 @@ test('the owner renames the list', async () => {
     await seed(env);
     const db = env.authenticatedContext(OWNER).firestore();
     await assertSucceeds(updateDoc(doc(db, 'lists/list-1'), { name: 'Fruit' }));
+  });
+});
+
+test('the owner cannot set the name to a non string', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const db = env.authenticatedContext(OWNER).firestore();
+    await assertFails(updateDoc(doc(db, 'lists/list-1'), { name: 123 }));
+  });
+});
+
+test('the owner cannot delete the name', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const db = env.authenticatedContext(OWNER).firestore();
+    await assertFails(updateDoc(doc(db, 'lists/list-1'), { name: deleteField() }));
+  });
+});
+
+test('the owner cannot set the date to a non number', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const db = env.authenticatedContext(OWNER).firestore();
+    await assertFails(updateDoc(doc(db, 'lists/list-1'), { date: 'tomorrow' }));
+  });
+});
+
+test('creating a list with a literal client timestamp fails', async () => {
+  await withTestEnv(async (env) => {
+    const db = env.authenticatedContext(OWNER).firestore();
+    const now = Timestamp.now();
+    await assertFails(
+      setDoc(doc(db, 'lists/list-9'), {
+        ...newList(OWNER, [OWNER]),
+        createdAt: now,
+        joinedAt: { [OWNER]: now },
+      }),
+    );
+  });
+});
+
+test('an unfiltered lists query is rejected and the membership query succeeds', async () => {
+  await withTestEnv(async (env) => {
+    await seed(env);
+    const db = env.authenticatedContext(MEMBER).firestore();
+    await assertFails(getDocs(collection(db, 'lists')));
+    await assertSucceeds(
+      getDocs(query(collection(db, 'lists'), where('memberUids', 'array-contains', MEMBER))),
+    );
   });
 });
 
