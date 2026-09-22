@@ -1457,3 +1457,48 @@ The pull request body must record four things: that `deleteList` orphans its ite
 **Three gaps this plan does not close, all recorded in the final pull request body.** Deleting a list leaves its items behind, because Firestore does not cascade. Deleting an item leaves its photo object in Cloud Storage, for the same reason: `PhotoService.remove` exists but nothing calls it yet. Both cascades are Cloud Function work in the account lifecycle plan. And `iShareWith$()` returns an empty array until the sharing plan wires it.
 
 **Type consistency.** `createList` returns `Promise<string>` in task 7 and is called for its return value in task 10. `upload` returns the path in task 8 and that path is written to `photoPath` in task 10, matching the `Item` shape in task 2. `objectUrl` returns a blob URL and task 10 revokes it. The service methods take `listId` alone after task 7, and no caller passes `ownerUid` to them.
+
+---
+
+## Implementation record
+
+Executed 2026-09-21 to 2026-09-22. Tasks 1 and 2 ran as Claude subagents with Claude reviewers; from task 3 the controller implemented directly and ChatGPT, driven through the user's Chrome, reviewed at three checkpoints. Final state: 53 rules tests and 4 service contract tests passing, build, lint and types clean.
+
+The implementation departs from the task text above in several places. Where they disagree, the code and the rulings below are authoritative.
+
+### What changed from the plan
+
+- **Schema.** `TodoList` gained `createdAt`, `Item` gained `listCreatedAt`, and `joinedAt` values are Timestamps. Items and photos are bound to their list's createdAt, which the rules force to equal `request.time`, so a recreated list id cannot inherit a deleted list's orphans.
+- **Storage path.** `lists/{listId}/{epoch}/{itemId}/{uuid}.jpg`. The epoch is createdAt as `millis_nanos`, built by `epochOf` in `src/app/models/epoch.ts`, which the app and the tests share.
+- **Services.** `items$` filters on `listCreatedAt`, because rules are not filters and an unfiltered query is rejected. `createList` and `lists$` derive the uid themselves. Items are written with `createItem` under a preallocated id and edited with `updateItem`, which uses `updateDoc` so an edit to a deleted item fails. `leaveList` removes the join time through a `FieldPath`.
+- **Save and delete flows.** Photos upload to a fresh object before one Firestore write; a failed write removes the new object. Deleting removes the item before its photo.
+- **Tests.** The plan's unauthenticated service tests were replaced by contract tests that replay each service's payloads as a signed in user under the real rules.
+- **CI.** Runs both suites, with Temurin 21 for the emulators and Node 24 LTS for native TypeScript stripping.
+
+### Rulings
+
+Each is a decision taken without asking, with what it costs if wrong.
+
+1. Every cumulative rules test total in the plan was one short, omitting the task 1 smoke test. Corrected before task 1. Cost if wrong: an implementer hunts a missing test.
+2. Task 10 removes the `goToLists` handler along with the `home/:ownerUid` route it targeted. Cost if wrong: an inert row until the sharing plan.
+3. `withTestEnv` clears Storage as well as Firestore, overriding the brief's verbatim helper. Cost if wrong: one redundant emulator call per test.
+4. Wiring CI to the tests moved from task 1 to task 11, since it needs a Java step. Closed in task 11.
+5. Rules test files run with `--test-concurrency=1`, because every file clears the one shared emulator. Cost if wrong: a few seconds of suite time.
+6. The emulator starts under the `demo-todo-list` project, since cross service lookups use the emulator's project. Cost if wrong: none offline; `demo-` keeps it offline.
+7. Items and photos are bound to an unforgeable list epoch. Cost if wrong: extra fields and a longer path.
+8. Membership stays on the list document; `Map.diff` proves survivors unchanged, so no subcollection. The reviewer conceded.
+9. No byte level image validation: only the owner uploads. The reviewer agreed.
+10. Profile `get` stays open to signed in users for the sharing UI; `list` is denied to stop email harvesting.
+11. Item update checks both the stored and the written epoch, after a verified hole in the first fix.
+12. `epochOf` uses integer math: rules `seconds()` is the clock second, Firestore keeps microseconds, and the SDK `toMillis()` is a float. Cost if wrong: failed uploads, caught by the round trip test.
+13. CI and Pages build on Node 24 LTS rather than rely on when Node 22 made type stripping the default.
+14. Photos upload to a fresh object before the Firestore write, with compensation on failure. Cost if wrong: orphan objects on a failed compensation, see 16.
+15. Parked: a transient photo load failure stays blank until the list emits again. Cost if wrong: an occasional blank photo.
+16. Parked: `removeQuietly` swallows cleanup failures, leaving unobservable orphans. Cost if wrong: Storage objects accumulate until the cleanup job.
+17. Parked: concurrent photo replacement can orphan an intermediate version. Cost if wrong: a rare extra orphaned image.
+
+Rulings 15 to 17 share one remedy: a server side job, planned for the account lifecycle plan, that deletes any Storage object no item references. The same job closes the list deletion cascade.
+
+### Before this can run against the real project
+
+Nothing here is deployed. The project needs the Blaze plan, Firestore and Cloud Storage enabled, `firestore.rules` and `storage.rules` deployed, and the `roles/firebaserules.firestoreServiceAgent` grant the console offers when the Storage rules are first saved. Signed in flows are unverified until then.
