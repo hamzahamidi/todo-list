@@ -40,6 +40,15 @@ service cloud.firestore {
                         && request.auth.uid == resource.data.ownerUid
                         && unchanged('ownerUid'))
                     || isSelfRemoval();
+
+      match /items/{itemId} {
+        function parent() {
+          return get(/databases/$(database)/documents/lists/$(listId)).data;
+        }
+
+        allow read: if isMember(parent());
+        allow write: if signedIn() && request.auth.uid == parent().ownerUid;
+      }
     }
   }
 }
