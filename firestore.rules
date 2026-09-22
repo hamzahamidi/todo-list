@@ -10,6 +10,11 @@ service cloud.firestore {
       return signedIn() && request.auth.uid in list.memberUids;
     }
 
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == userId;
+    }
+
     match /lists/{listId} {
       function unchanged(field) {
         return request.resource.data[field] == resource.data[field];

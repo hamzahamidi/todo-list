@@ -137,3 +137,15 @@ test('only the owner deletes the list', async () => {
     await assertSucceeds(deleteDoc(doc(owner, 'lists/list-1')));
   });
 });
+
+test('a user writes only their own profile', async () => {
+  await withTestEnv(async (env) => {
+    const mine = env.authenticatedContext(OWNER).firestore();
+    await assertSucceeds(
+      setDoc(doc(mine, 'users/owner-uid'), { uid: OWNER, email: 'a@b.c' }),
+    );
+    await assertFails(
+      setDoc(doc(mine, 'users/member-uid'), { uid: MEMBER, email: 'x@y.z' }),
+    );
+  });
+});

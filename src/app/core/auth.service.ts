@@ -8,16 +8,16 @@ import {
   signOut,
   type UserCredential,
 } from 'firebase/auth';
-import { ref, set } from 'firebase/database';
+import { doc, setDoc } from 'firebase/firestore';
 import { authState } from 'rxfire/auth';
 import { Observable, map } from 'rxjs';
 import { User } from '../models';
-import { FIREBASE_AUTH, FIREBASE_DATABASE } from './firebase.providers';
+import { FIREBASE_AUTH, FIRESTORE } from './firebase.providers';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly auth = inject(FIREBASE_AUTH);
-  private readonly db = inject(FIREBASE_DATABASE);
+  private readonly db = inject(FIRESTORE);
 
   readonly user$: Observable<User | null> = authState(this.auth).pipe(
     map((user) => (user ? toProfile(user) : null)),
@@ -57,7 +57,7 @@ export class AuthService {
 
   private async persistProfile(credential: UserCredential): Promise<User> {
     const profile = toProfile(credential.user);
-    await set(ref(this.db, `/users/${profile.uid}/profile`), profile);
+    await setDoc(doc(this.db, 'users', profile.uid), profile);
     return profile;
   }
 }
