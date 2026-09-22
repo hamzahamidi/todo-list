@@ -1499,6 +1499,10 @@ Each is a decision taken without asking, with what it costs if wrong.
 
 Rulings 15 to 17 share one remedy: a server side job, planned for the account lifecycle plan, that deletes any Storage object no item references. The same job closes the list deletion cascade.
 
-### Before this can run against the real project
+### Deployment state
 
-Nothing here is deployed. The project needs the Blaze plan, Firestore and Cloud Storage enabled, `firestore.rules` and `storage.rules` deployed, and the `roles/firebaserules.firestoreServiceAgent` grant the console offers when the Storage rules are first saved. Signed in flows are unverified until then.
+The app runs on the Firebase project `todo-list-f5305` (Spark plan). Firestore is in `us-central1` with `firestore.rules` published, and Google sign-in, list creation, item creation and item update pass against it. `firestore.indexes.json` is empty, since every query uses a single field index.
+
+Cloud Storage is not enabled: new buckets need the Blaze plan. Until it is, the bucket's CORS preflight returns 404, the SDK retries the upload as a network error for up to 10 minutes, and then the modal shows its error toast. Enabling it takes the Blaze plan, a `us-central1` bucket, `storage.rules` deployed, and the `roles/firebaserules.firestoreServiceAgent` grant the console offers when the Storage rules are first saved.
+
+`google-services.json` still belongs to the previous project, so the Android build needs an Android app registered on `todo-list-f5305` and a fresh file.
