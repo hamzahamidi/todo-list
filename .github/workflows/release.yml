@@ -101,6 +101,24 @@ jobs:
       - name: Build the unsigned release APK
         working-directory: android
         run: ./gradlew --no-daemon assembleRelease
+      - uses: actions/upload-artifact@v7
+        with:
+          name: android-unsigned
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+          retention-days: 1
+
+  # Signing runs apart from the build, so no npm or Gradle code shares a runner with the keystore.
+  android-sign:
+    needs: [version, android]
+    runs-on: ubuntu-latest
+    env:
+      LABEL: ${{ needs.version.outputs.label }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: android-unsigned
+          path: unsigned
       - name: Align, sign and verify
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -115,7 +133,7 @@ jobs:
           (umask 077 && printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore")
           tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           mkdir -p out
-          "$tools/zipalign" -P 16 -f 4 android/app/build/outputs/apk/release/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/zipalign" -P 16 -f 4 unsigned/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
           # A PKCS12 keystore has one password for the store and the key.
           "$tools/apksigner" sign --ks "$keystore" --ks-key-alias "$ANDROID_KEY_ALIAS" \
             --ks-pass env:ANDROID_KEYSTORE_PASSWORD --key-pass env:ANDROID_KEYSTORE_PASSWORD \
@@ -124,7 +142,7 @@ jobs:
           "$tools/apksigner" verify --verbose --print-certs "out/todo-list-$LABEL.apk"
       - uses: actions/upload-artifact@v7
         with:
-          name: android-apk
+          name: release-android
           path: out/*.apk
           if-no-files-found: error
           retention-days: 14
@@ -168,13 +186,13 @@ jobs:
           (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/out/todo-list-$LABEL-unsigned.ipa" Payload)
       - uses: actions/upload-artifact@v7
         with:
-          name: ios-ipa
+          name: release-ios
           path: out/*.ipa
           if-no-files-found: error
           retention-days: 14
 
   release:
-    needs: [version, android, ios]
+    needs: [version, android-sign, ios]
     if: needs.version.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -186,6 +204,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
+          pattern: release-*
           path: dist
           merge-multiple: true
       - name: Publish
@@ -196,10 +215,14 @@ jobs:
           files+=(SHA256SUMS)
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" "${files[@]}" --clobber
+            # Deleting a tag turns its release into a draft, and a cancelled create can leave one too.
+            if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = true ]; then
+              gh release edit "$TAG" --draft=false
+            fi
           else
             notes=$(printf '%s\n\n' \
               "**Android**: install todo-list-$TAG.apk. Every release is signed with the same key, so it updates an earlier install in place." \
-              "**iOS**: todo-list-$TAG-unsigned.ipa is not signed. Re-sign it with a sideloading tool such as AltStore or Sideloadly before installing. Google sign-in is not configured for iOS yet." \
-              "Check a download with: sha256sum -c SHA256SUMS")
+              "**iOS**: todo-list-$TAG-unsigned.ipa is not signed, so re-sign it with a sideloading tool such as AltStore or Sideloadly before installing. It cannot sign in yet: Google is the only sign-in method and no Firebase iOS app is configured." \
+              "Check a download with: sha256sum -c --ignore-missing SHA256SUMS")
             gh release create "$TAG" "${files[@]}" --verify-tag --title "$TAG" --generate-notes --notes "$notes"
           fi

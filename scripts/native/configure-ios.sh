@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ruby -e "require 'xcodeproj'" 2> /dev/null \
+  || { echo "configure-ios.sh needs the xcodeproj gem for the ruby on PATH: gem install --user-install xcodeproj" >&2; exit 1; }
+
 podfile=ios/App/Podfile
 sed -i.orig "s|^  # Add your Pods here$|  pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'|" "$podfile"
 rm "$podfile.orig"

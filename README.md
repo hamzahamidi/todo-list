@@ -90,12 +90,13 @@ npx firebase deploy --only firestore,storage
 # Native builds
 
 The native shells use [Capacitor](https://capacitorjs.com). `android/` and `ios/` are
-generated and are not checked in. The scripts in `scripts/native/` apply every native
-setting to a fresh project: version numbers, the Google sign-in flag, the Firebase
-config file, the iOS permission texts, and the icons and splash screen generated from
-`resources/icon.png`.
+generated and are not checked in. The scripts in `scripts/native/` apply the native
+settings to a fresh project: the Android version numbers, the Google sign-in flag, the
+Firebase config file, the iOS permission texts, the launcher icons from
+`resources/icon.png` and the splash screens from `resources/splash.png` (light) and
+`resources/icon.png` (dark). The release workflow sets the iOS version when it archives.
 
-Android needs JDK 21 and the Android SDK:
+Android needs JDK 21, the Android SDK and jq:
 
 ```
 npm ci
@@ -106,7 +107,8 @@ npx cap sync android
 npx cap open android
 ```
 
-iOS needs macOS with Xcode 26 and CocoaPods:
+iOS needs macOS with Xcode 26, CocoaPods, and the xcodeproj gem for the `ruby` on
+`PATH`:
 
 ```
 npm ci
@@ -120,8 +122,8 @@ npx cap open ios
 `google-services.json` belongs to the Firebase Android app `com.todo.list` on
 `todo-list-f5305`, which has the release key's SHA-1 and SHA-256 registered. A local
 debug build is signed with another key, so native Google sign-in needs that key's SHA-1
-added in the Firebase console too. No Firebase iOS app exists yet, so Google sign-in
-does not work in the iOS build.
+added in the Firebase console too. No Firebase iOS app exists yet, and Google is the
+only sign-in method, so the iOS build cannot sign in.
 
 # Releases
 
@@ -132,7 +134,7 @@ version:
 
 ```
 npm version patch
-git push --follow-tags origin master
+git push --atomic --follow-tags origin master
 ```
 
 `.npmrc` makes `npm version` create bare tags such as `1.0.1`, like the older tags.
