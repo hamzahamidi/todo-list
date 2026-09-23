@@ -1,28 +1,24 @@
 [![CI](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml)
 [![Deploy](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml)
 [![Release](https://github.com/hamzahamidi/todo-list/actions/workflows/release.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/release.yml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a884eb46aac726ed5c65/maintainability)](https://codeclimate.com/github/hamzahamidi/todo-list/maintainability)
 [![GitHub release](https://img.shields.io/github/release/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list)
 
-# TODO-LIST IONIC FIREBASE PROJECT
+# Todo List
 
-A small Todo-List project built with Ionic and Firebase.
+A todo list app built with Ionic, Angular and Capacitor on Firebase. It runs on the web
+as an installable app, and every release ships an Android APK and an iOS IPA.
 
-**Live at [hamidihamza.com/todo-list](https://hamidihamza.com/todo-list/).**
+**Live at [hamidihamza.com/todo-list](https://hamidihamza.com/todo-list/).
+Downloads on the [releases page](https://github.com/hamzahamidi/todo-list/releases/latest).**
 
-The application is able to do the following:
+- Google sign-in.
+- Create, rename and delete lists.
+- Add, edit, complete and delete tasks.
+- Dictate a task by voice, in the native builds only.
 
-- CRUD Todo-List.
-- CRUD Tasks/items.
-- Installable web app.
-- SSO Google.
-- Share list via QR code.
-- Upload image from Camera or Storage.
-- Speech Recognition.
-
-Speech recognition relies on a Capacitor plugin and is only available in the native
-build.
+Photos on tasks need Cloud Storage, which is not enabled on the Firebase project yet.
+Sharing lists is being rebuilt.
 
 ## Stack
 

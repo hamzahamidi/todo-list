@@ -1,6 +1,7 @@
 {
   "name": "Todo List",
-  "short_name": "pwa-list",
+  "short_name": "Todo List",
+  "description": "Keep todo lists and tasks in sync across the web, Android and iOS, signed in with Google.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
