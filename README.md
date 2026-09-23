@@ -1,5 +1,6 @@
 [![CI](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/ci.yml)
 [![Deploy](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/deploy.yml)
+[![Release](https://github.com/hamzahamidi/todo-list/actions/workflows/release.yml/badge.svg)](https://github.com/hamzahamidi/todo-list/actions/workflows/release.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a884eb46aac726ed5c65/maintainability)](https://codeclimate.com/github/hamzahamidi/todo-list/maintainability)
 [![GitHub release](https://img.shields.io/github/release/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/hamzahamidi/todo-list.svg)](https://github.com/hamzahamidi/todo-list)
@@ -20,8 +21,8 @@ The application is able to do the following:
 - Upload image from Camera or Storage.
 - Speech Recognition.
 
-QR scanning and speech recognition rely on Capacitor plugins and are only available
-in the native build.
+Speech recognition relies on a Capacitor plugin and is only available in the native
+build.
 
 ## Stack
 
@@ -30,7 +31,7 @@ in the native build.
 | UI | Ionic 9 (standalone components) |
 | Framework | Angular 22 |
 | Backend | Firebase Auth, Cloud Firestore and Cloud Storage (modular SDK with `rxfire`) |
-| Native | Capacitor 8 |
+| Native | Capacitor 8 (Android and iOS) |
 | Build | Angular CLI |
 
 # Getting started
@@ -86,28 +87,64 @@ named in `.firebaserc` with:
 npx firebase deploy --only firestore,storage
 ```
 
-# Running on Android
+# Native builds
 
-The native shell uses [Capacitor](https://capacitorjs.com). The `android/` directory
-is generated and is not checked in:
+The native shells use [Capacitor](https://capacitorjs.com). `android/` and `ios/` are
+generated and are not checked in. The scripts in `scripts/native/` apply every native
+setting to a fresh project: version numbers, the Google sign-in flag, the Firebase
+config file, the iOS permission texts, and the icons and splash screen generated from
+`resources/icon.png`.
+
+Android needs JDK 21 and the Android SDK:
 
 ```
-npm run build
+npm ci
 npx cap add android
-npx cap sync
+VERSION=1.0.0 VERSION_CODE=1000000 scripts/native/configure-android.sh
+npm run build
+npx cap sync android
 npx cap open android
 ```
 
-`google-services.json` at the repository root must be copied to
-`android/app/google-services.json` for Google sign-in to work, and the Firebase
-Android app must have the signing certificate's SHA-1 registered.
-
-Launcher icons and the splash screen are generated from `resources/icon.png` and
-`resources/splash.png`:
+iOS needs macOS with Xcode 26 and CocoaPods:
 
 ```
-npx @capacitor/assets generate --assetPath resources --android
+npm ci
+npx cap add ios --packagemanager CocoaPods
+scripts/native/configure-ios.sh
+npm run build
+npx cap sync ios
+npx cap open ios
 ```
+
+`google-services.json` belongs to the Firebase Android app `com.todo.list` on
+`todo-list-f5305`, which has the release key's SHA-1 and SHA-256 registered. A local
+debug build is signed with another key, so native Google sign-in needs that key's SHA-1
+added in the Firebase console too. No Firebase iOS app exists yet, so Google sign-in
+does not work in the iOS build.
+
+# Releases
+
+Pushing a `MAJOR.MINOR.PATCH` tag runs [`release.yml`](.github/workflows/release.yml).
+It builds a signed APK on Ubuntu and an unsigned IPA on macOS, then publishes a GitHub
+release with both files and a `SHA256SUMS` file. The tag must equal the `package.json`
+version:
+
+```
+npm version patch
+git push --follow-tags origin master
+```
+
+`.npmrc` makes `npm version` create bare tags such as `1.0.1`, like the older tags.
+
+The APK is signed with the release key stored in the `ANDROID_KEYSTORE_BASE64`,
+`ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` secrets. Every release must use that
+key, or installed copies cannot update. The IPA is unsigned: install it with a
+sideloading tool that re-signs it, such as AltStore or Sideloadly.
+
+To rebuild a release without moving its tag, run
+`gh workflow run release.yml --ref 1.0.1 -f publish=true`. A run from a branch builds
+both files as workflow artifacts and publishes nothing.
 
 # Project Planning
 
