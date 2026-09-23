@@ -1,0 +1,227 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the GitHub release (run from a version tag)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      code: ${{ steps.version.outputs.code }}
+      label: ${{ steps.version.outputs.label }}
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          PUBLISH_INPUT: ${{ inputs.publish }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::package.json version $version is not MAJOR.MINOR.PATCH"
+            exit 1
+          fi
+          major=$((10#${BASH_REMATCH[1]})) minor=$((10#${BASH_REMATCH[2]})) patch=$((10#${BASH_REMATCH[3]}))
+          if (( minor > 999 || patch > 999 )); then
+            echo "::error::minor and patch must stay below 1000 for the Android versionCode"
+            exit 1
+          fi
+          publish=false
+          if [ "$REF_TYPE" = tag ]; then
+            if [ "$REF_NAME" != "$version" ]; then
+              echo "::error::tag $REF_NAME does not match package.json version $version"
+              exit 1
+            fi
+            label=$version
+            if [ "$EVENT_NAME" = push ] || [ "$PUBLISH_INPUT" = true ]; then
+              publish=true
+            fi
+          else
+            if [ "$PUBLISH_INPUT" = true ]; then
+              echo "::error::publishing needs a version tag: gh workflow run release.yml --ref $version -f publish=true"
+              exit 1
+            fi
+            label="$version-${GITHUB_SHA::7}"
+          fi
+          {
+            echo "version=$version"
+            echo "code=$((major * 1000000 + minor * 1000 + patch))"
+            echo "label=$label"
+            echo "publish=$publish"
+          } >> "$GITHUB_OUTPUT"
+
+  android:
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      VERSION_CODE: ${{ needs.version.outputs.code }}
+      LABEL: ${{ needs.version.outputs.label }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      # cap add syncs when www exists, so the web build waits until the project is configured.
+      - run: npx cap add android
+      - run: scripts/native/configure-android.sh
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build the unsigned release APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleRelease
+      - uses: actions/upload-artifact@v7
+        with:
+          name: android-unsigned
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+          retention-days: 1
+
+  # Signing runs apart from the build, so no npm or Gradle code shares a runner with the keystore.
+  android-sign:
+    needs: [version, android]
+    runs-on: ubuntu-latest
+    env:
+      LABEL: ${{ needs.version.outputs.label }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: android-unsigned
+          path: unsigned
+      - name: Align, sign and verify
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ vars.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ]; then
+            echo "::error::the ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD secrets and the ANDROID_KEY_ALIAS variable are required"
+            exit 1
+          fi
+          keystore="$RUNNER_TEMP/release.keystore"
+          (umask 077 && printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore")
+          tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          mkdir -p out
+          "$tools/zipalign" -P 16 -f 4 unsigned/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          # A PKCS12 keystore has one password for the store and the key.
+          "$tools/apksigner" sign --ks "$keystore" --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --ks-pass env:ANDROID_KEYSTORE_PASSWORD --key-pass env:ANDROID_KEYSTORE_PASSWORD \
+            --out "out/todo-list-$LABEL.apk" "$RUNNER_TEMP/aligned.apk"
+          rm -f "$keystore"
+          "$tools/apksigner" verify --verbose --print-certs "out/todo-list-$LABEL.apk"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-android
+          path: out/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  ios:
+    needs: version
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      VERSION_CODE: ${{ needs.version.outputs.code }}
+      LABEL: ${{ needs.version.outputs.label }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: xcodebuild -version && pod --version
+      - run: npm ci
+      - run: npx cap add ios --packagemanager CocoaPods
+      - run: scripts/native/configure-ios.sh
+      - run: npm run build
+      - run: npx cap sync ios
+      - name: Archive without signing
+        run: |
+          xcodebuild -quiet -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            ENABLE_USER_SCRIPT_SANDBOXING=NO \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$VERSION_CODE" \
+            archive
+      - name: Package the IPA
+        run: |
+          app="$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app"
+          plutil -p "$app/Info.plist" | grep -E 'CFBundleIdentifier|CFBundleShortVersionString|CFBundleVersion'
+          mkdir -p "$RUNNER_TEMP/ipa/Payload" out
+          cp -R "$app" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/out/todo-list-$LABEL-unsigned.ipa" Payload)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-ios
+          path: out/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    needs: [version, android-sign, ios]
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Publish
+        working-directory: dist
+        run: |
+          files=("todo-list-$TAG.apk" "todo-list-$TAG-unsigned.ipa")
+          sha256sum "${files[@]}" > SHA256SUMS
+          files+=(SHA256SUMS)
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "${files[@]}" --clobber
+            # Deleting a tag turns its release into a draft, and a cancelled create can leave one too.
+            if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = true ]; then
+              gh release edit "$TAG" --draft=false
+            fi
+          else
+            notes=$(printf '%s\n\n' \
+              "**Android**: install todo-list-$TAG.apk. Every release is signed with the same key, so it updates an earlier install in place." \
+              "**iOS**: todo-list-$TAG-unsigned.ipa is not signed, so re-sign it with a sideloading tool such as AltStore or Sideloadly before installing. It cannot sign in yet: Google is the only sign-in method and no Firebase iOS app is configured." \
+              "Check a download with: sha256sum -c --ignore-missing SHA256SUMS")
+            gh release create "$TAG" "${files[@]}" --verify-tag --title "$TAG" --generate-notes --notes "$notes"
+          fi

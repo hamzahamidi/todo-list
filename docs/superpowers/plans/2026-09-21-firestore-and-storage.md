@@ -1505,4 +1505,4 @@ The app runs on the Firebase project `todo-list-f5305` (Spark plan). Firestore i
 
 Cloud Storage is not enabled: new buckets need the Blaze plan. Until it is, the bucket's CORS preflight returns 404, the SDK retries the upload as a network error for up to 10 minutes, and then the modal shows its error toast. Enabling it takes the Blaze plan, a `us-central1` bucket, `storage.rules` deployed, and the `roles/firebaserules.firestoreServiceAgent` grant the console offers when the Storage rules are first saved.
 
-`google-services.json` still belongs to the previous project, so the Android build needs an Android app registered on `todo-list-f5305` and a fresh file.
+`google-services.json` belongs to the Android app `com.todo.list` on `todo-list-f5305`, registered with the release key's SHA-1 and SHA-256. No iOS app is registered, so iOS builds have no `GoogleService-Info.plist`.
