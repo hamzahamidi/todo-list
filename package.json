@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "author": "Hamza Hamidi",
   "homepage": "https://hamidihamza.com/todo-list/",
-  "description": "TodoList using Ionic & Firebase",
+  "description": "Todo list app built with Ionic, Angular and Capacitor on Firebase",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamzahamidi/todo-list.git"
+  },
   "private": true,
   "scripts": {
     "ng": "ng",
