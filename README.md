@@ -137,9 +137,9 @@ git push --follow-tags origin master
 
 `.npmrc` makes `npm version` create bare tags such as `1.0.1`, like the older tags.
 
-The APK is signed with the release key stored in the `ANDROID_KEYSTORE_BASE64`,
-`ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` secrets. Every release must use that
-key, or installed copies cannot update. The IPA is unsigned: install it with a
+The APK is signed with the release key stored in the `ANDROID_KEYSTORE_BASE64` and
+`ANDROID_KEYSTORE_PASSWORD` secrets, under the alias in the `ANDROID_KEY_ALIAS`
+repository variable. Every release must use that key, or installed copies cannot update. The IPA is unsigned: install it with a
 sideloading tool that re-signs it, such as AltStore or Sideloadly.
 
 To rebuild a release without moving its tag, run
