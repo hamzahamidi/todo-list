@@ -19,6 +19,20 @@
 
   <meta name="mobile-web-app-capable" content="yes">
 
+  <script>
+    (function () {
+      if (location.hostname !== 'hamidihamza.com') return;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', 'G-TH8GG8HPH6');
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TH8GG8HPH6';
+      document.head.appendChild(script);
+    })();
+  </script>
+
   <!-- add to homescreen for ios -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Todo List">
