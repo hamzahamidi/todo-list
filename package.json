@@ -27,7 +27,7 @@
     "@angular/core": "22.1.7",
     "@angular/forms": "22.1.7",
     "@angular/platform-browser": "22.1.7",
-    "@angular/router": "22.1.7",
+    "@angular/router": "22.2.1",
     "@capacitor-community/speech-recognition": "7.0.1",
     "@capacitor-firebase/authentication": "8.5.2",
     "@capacitor/android": "8.5.2",
