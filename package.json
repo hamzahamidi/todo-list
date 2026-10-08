@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@angular/build": "22.2.2",
-    "@angular/cli": "22.1.8",
+    "@angular/cli": "22.2.2",
     "@angular/compiler-cli": "22.1.7",
     "@capacitor/cli": "8.5.2",
     "@eslint/js": "^10.0.1",
